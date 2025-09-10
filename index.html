@@ -2697,13 +2697,6 @@
                             <option value="all">Tất cả các loại</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
-                            <span class="checkmark"></span>
-                            Tôi đồng ý với <a href="#" target="_blank">Điều khoản sử dụng</a> và <a href="#" target="_blank">Chính sách bảo mật</a>
-                        </label>
-                    </div>
                     <button type="submit" class="btn-submit">Đăng ký ngay</button>
                     <div class="auth-switch">
                         <p>Đã có tài khoản? <a href="#" id="switchToLogin">Đăng nhập ngay</a></p>
@@ -2815,6 +2808,9 @@
         </div>
     </div>
 
+    <!-- API Client -->
+    <script src="js/api.js"></script>
+    
     <script>
         // Smooth scrolling for navigation links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -2913,19 +2909,35 @@
         class AuthSystem {
             constructor() {
                 this.currentUser = null;
-                this.users = JSON.parse(localStorage.getItem('recyclehub_users')) || [];
+                this.api = window.RecycleHubAPI;
                 this.init();
             }
 
-            init() {
-                this.checkLoginStatus();
+            async init() {
+                await this.checkLoginStatus();
                 this.bindEvents();
             }
 
-            checkLoginStatus() {
-                const userData = localStorage.getItem('recyclehub_current_user');
-                if (userData) {
-                    this.currentUser = JSON.parse(userData);
+            async checkLoginStatus() {
+                try {
+                    if (this.api.isLoggedIn()) {
+                        // Kiểm tra token có còn hợp lệ không
+                        const result = await this.api.getCurrentUser();
+                        if (result.success) {
+                            this.currentUser = result.data.user;
+                            this.updateUI();
+                        }
+                    } else {
+                        // Thử lấy user data từ localStorage
+                        const userData = localStorage.getItem('recyclehub_user');
+                        if (userData) {
+                            this.currentUser = JSON.parse(userData);
+                            this.updateUI();
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Token không hợp lệ hoặc server không khả dụng:', error);
+                    this.currentUser = null;
                     this.updateUI();
                 }
             }
@@ -2997,6 +3009,11 @@
                     this.openModal('dashboardModal');
                 });
 
+                bindElement('profileLink', 'click', (e) => {
+                    e.preventDefault();
+                    window.location.href = 'profile.html';
+                });
+
                 bindElement('logoutLink', 'click', (e) => {
                     e.preventDefault();
                     this.logout();
@@ -3050,32 +3067,30 @@
                 // Show loading state
                 this.setLoadingState(submitBtn, true);
 
-                // Simulate network delay
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                try {
+                    // Validate
+                    if (!data.loginEmail || !data.loginPassword) {
+                        this.setLoadingState(submitBtn, false);
+                        this.showAlert('Vui lòng điền đầy đủ thông tin!', 'error');
+                        return;
+                    }
 
-                // Validate
-                if (!data.loginEmail || !data.loginPassword) {
-                    this.setLoadingState(submitBtn, false);
-                    this.showAlert('Vui lòng điền đầy đủ thông tin!', 'error');
-                    return;
-                }
+                    // Call API
+                    const result = await this.api.login({
+                        loginEmail: data.loginEmail,
+                        loginPassword: data.loginPassword
+                    });
 
-                // Find user
-                const user = this.users.find(u => 
-                    (u.email === data.loginEmail || u.phone === data.loginEmail) && 
-                    u.password === data.password
-                );
-
-                if (user) {
-                    this.currentUser = user;
-                    localStorage.setItem('recyclehub_current_user', JSON.stringify(user));
-                    this.updateUI();
+                    if (result.success) {
+                        this.currentUser = result.data.user;
+                        this.updateUI();
+                        this.setLoadingState(submitBtn, false);
+                        this.closeModal('loginModal');
+                        this.showAlert('Đăng nhập thành công!', 'success');
+                    }
+                } catch (error) {
                     this.setLoadingState(submitBtn, false);
-                    this.closeModal('loginModal');
-                    this.showAlert('Đăng nhập thành công!', 'success');
-                } else {
-                    this.setLoadingState(submitBtn, false);
-                    this.showAlert('Email/số điện thoại hoặc mật khẩu không đúng!', 'error');
+                    this.showAlert(error.message || 'Đăng nhập thất bại!', 'error');
                 }
             }
 
@@ -3088,75 +3103,60 @@
                 // Show loading state
                 this.setLoadingState(submitBtn, true);
 
-                // Simulate network delay
-                await new Promise(resolve => setTimeout(resolve, 1500));
-
-                // Validate
-                if (!data.fullName || !data.phone || !data.email || !data.password || !data.confirmPassword || !data.address) {
-                    this.setLoadingState(submitBtn, false);
-                    this.showAlert('Vui lòng điền đầy đủ thông tin bắt buộc!', 'error');
-                    return;
-                }
-
-                if (data.password !== data.confirmPassword) {
-                    this.setLoadingState(submitBtn, false);
-                    this.showAlert('Mật khẩu xác nhận không khớp!', 'error');
-                    return;
-                }
-
-                if (data.password.length < 6) {
-                    this.setLoadingState(submitBtn, false);
-                    this.showAlert('Mật khẩu phải có ít nhất 6 ký tự!', 'error');
-                    return;
-                }
-
-                if (!data.agreeTerms) {
-                    this.setLoadingState(submitBtn, false);
-                    this.showAlert('Vui lòng đồng ý với điều khoản sử dụng!', 'error');
-                    return;
-                }
-
-                // Check if user exists
-                const existingUser = this.users.find(u => u.email === data.email || u.phone === data.phone);
-                if (existingUser) {
-                    this.setLoadingState(submitBtn, false);
-                    this.showAlert('Email hoặc số điện thoại đã được sử dụng!', 'error');
-                    return;
-                }
-
-                // Create new user
-                const newUser = {
-                    id: Date.now().toString(),
-                    fullName: data.fullName,
-                    phone: data.phone,
-                    email: data.email,
-                    password: data.password,
-                    address: data.address,
-                    plasticType: data.plasticType,
-                    createdAt: new Date().toISOString(),
-                    stats: {
-                        totalKg: 0,
-                        totalEarnings: 0,
-                        totalOrders: 0
+                try {
+                    // Validate
+                    if (!data.fullName || !data.phone || !data.email || !data.password || !data.confirmPassword || !data.address) {
+                        this.setLoadingState(submitBtn, false);
+                        this.showAlert('Vui lòng điền đầy đủ thông tin bắt buộc!', 'error');
+                        return;
                     }
-                };
 
-                this.users.push(newUser);
-                localStorage.setItem('recyclehub_users', JSON.stringify(this.users));
+                    if (data.password !== data.confirmPassword) {
+                        this.setLoadingState(submitBtn, false);
+                        this.showAlert('Mật khẩu xác nhận không khớp!', 'error');
+                        return;
+                    }
 
-                this.currentUser = newUser;
-                localStorage.setItem('recyclehub_current_user', JSON.stringify(newUser));
-                this.updateUI();
-                this.setLoadingState(submitBtn, false);
-                this.closeModal('registerModal');
-                this.showAlert('Đăng ký thành công! Chào mừng bạn đến với RecycleHub!', 'success');
+                    if (data.password.length < 6) {
+                        this.setLoadingState(submitBtn, false);
+                        this.showAlert('Mật khẩu phải có ít nhất 6 ký tự!', 'error');
+                        return;
+                    }
+
+                    // Call API
+                    const result = await this.api.register({
+                        fullName: data.fullName,
+                        phone: data.phone,
+                        email: data.email,
+                        password: data.password,
+                        confirmPassword: data.confirmPassword,
+                        address: data.address,
+                        plasticType: data.plasticType
+                    });
+
+                    if (result.success) {
+                        this.currentUser = result.data.user;
+                        this.updateUI();
+                        this.setLoadingState(submitBtn, false);
+                        this.closeModal('registerModal');
+                        this.showAlert('Đăng ký thành công! Chào mừng bạn đến với RecycleHub!', 'success');
+                    }
+                } catch (error) {
+                    this.setLoadingState(submitBtn, false);
+                    this.showAlert(error.message || 'Đăng ký thất bại!', 'error');
+                }
             }
 
-            logout() {
-                this.currentUser = null;
-                localStorage.removeItem('recyclehub_current_user');
-                this.updateUI();
-                this.showAlert('Đã đăng xuất thành công!', 'success');
+            async logout() {
+                try {
+                    await this.api.logout();
+                } catch (error) {
+                    console.warn('Logout API call failed:', error);
+                } finally {
+                    this.currentUser = null;
+                    this.updateUI();
+                    this.showAlert('Đã đăng xuất thành công!', 'success');
+                }
             }
 
             updateUI() {
@@ -3603,19 +3603,24 @@
         let auth;
         let pointsSystem;
         
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             auth = new AuthSystem();
+            window.auth = auth; // Make it globally accessible
             pointsSystem = new PointsSystem();
             window.pointsSystem = pointsSystem; // Make it globally accessible
         });
 
         // Fallback for immediate execution
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                if (!auth) auth = new AuthSystem();
+            document.addEventListener('DOMContentLoaded', async () => {
+                if (!auth) {
+                    auth = new AuthSystem();
+                    window.auth = auth; // Make it globally accessible
+                }
             });
         } else {
             auth = new AuthSystem();
+            window.auth = auth; // Make it globally accessible
         }
 
         // Direct form event binding as fallback
