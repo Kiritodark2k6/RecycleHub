@@ -14,7 +14,36 @@ const PORT = config.PORT;
 // Middleware
 app.use(helmet());
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'file://', 'null'],
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        const allowedOrigins = [
+            'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'file://',
+            'null',
+            'https://kiritodark2k6.github.io'
+        ];
+        
+        // Check if origin is allowed
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            return callback(null, true);
+        }
+        
+        // Allow all GitHub Pages domains
+        if (origin && origin.endsWith('.github.io')) {
+            return callback(null, true);
+        }
+        
+        // Allow localhost with any port for development
+        if (origin && origin.startsWith('http://localhost:')) {
+            return callback(null, true);
+        }
+        
+        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+    },
     credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
