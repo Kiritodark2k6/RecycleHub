@@ -14,36 +14,7 @@ const PORT = config.PORT;
 // Middleware
 app.use(helmet());
 app.use(cors({
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
-        const allowedOrigins = [
-            'http://localhost:3000',
-            'http://127.0.0.1:3000',
-            'file://',
-            'null',
-            'https://kiritodark2k6.github.io'
-        ];
-        
-        // Check if origin is allowed
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            return callback(null, true);
-        }
-        
-        // Allow all GitHub Pages domains
-        if (origin && origin.endsWith('.github.io')) {
-            return callback(null, true);
-        }
-        
-        // Allow localhost with any port for development
-        if (origin && origin.startsWith('http://localhost:')) {
-            return callback(null, true);
-        }
-        
-        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-        return callback(new Error(msg), false);
-    },
+    origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'file://', 'null'],
     credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -95,18 +66,59 @@ app.use('*', (req, res) => {
     });
 });
 
+// MongoDB connection options
+const mongooseOptions = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    maxPoolSize: 10, // Maintain up to 10 socket connections
+    serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+    bufferMaxEntries: 0, // Disable mongoose buffering
+    bufferCommands: false, // Disable mongoose buffering
+};
+
 // MongoDB connection
-mongoose.connect(config.MONGODB_URI)
+mongoose.connect(config.MONGODB_URI, mongooseOptions)
 .then(() => {
-    console.log('✅ Kết nối MongoDB thành công');
+    console.log('✅ Kết nối MongoDB Atlas thành công');
+    console.log(`📊 Database: ${mongoose.connection.name}`);
+    console.log(`🌐 Host: ${mongoose.connection.host}`);
+    
     app.listen(PORT, () => {
         console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
         console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+        console.log(`🔗 MongoDB Atlas: Đã kết nối thành công`);
     });
 })
 .catch((error) => {
-    console.error('❌ Lỗi kết nối MongoDB:', error);
+    console.error('❌ Lỗi kết nối MongoDB Atlas:', error.message);
+    console.error('💡 Kiểm tra lại connection string và network access trong MongoDB Atlas');
     process.exit(1);
+});
+
+// MongoDB connection events
+mongoose.connection.on('connected', () => {
+    console.log('🔗 Mongoose đã kết nối tới MongoDB Atlas');
+});
+
+mongoose.connection.on('error', (err) => {
+    console.error('❌ Lỗi Mongoose:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+    console.log('⚠️ Mongoose đã ngắt kết nối khỏi MongoDB Atlas');
+});
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+    try {
+        await mongoose.connection.close();
+        console.log('🔒 Kết nối MongoDB đã được đóng do ứng dụng kết thúc');
+        process.exit(0);
+    } catch (error) {
+        console.error('❌ Lỗi khi đóng kết nối MongoDB:', error);
+        process.exit(1);
+    }
 });
 
 module.exports = app;
