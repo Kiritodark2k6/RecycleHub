@@ -1,6 +1,9 @@
+// Load environment variables
+require('dotenv').config();
+
 module.exports = {
     // MongoDB Configuration
-    MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/recyclehub',
+    MONGODB_URI: process.env.MONGODB_URI || 'mongodb+srv://tuandung2006a_db_user:0lLj37s6FkFPWpLI@recyclehub.4xzcat7.mongodb.net/recyclehub?retryWrites=true&w=majority',
     
     // JWT Configuration
     JWT_SECRET: process.env.JWT_SECRET || 'recyclehub_super_secret_jwt_key_2025',
