@@ -1,7 +1,11 @@
 // RecycleHub API Client
 class RecycleHubAPI {
     constructor() {
-        this.baseURL = 'http://localhost:5000/api';
+        // Auto-detect environment and set appropriate API URL
+        const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+        this.baseURL = isProduction 
+            ? 'https://your-backend-url.herokuapp.com/api'  // Thay bằng URL backend production của bạn
+            : 'http://localhost:5000/api';
         this.token = localStorage.getItem('recyclehub_token');
     }
 
