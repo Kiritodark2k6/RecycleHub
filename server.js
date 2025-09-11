@@ -38,6 +38,8 @@ const authLimiter = rateLimit({
 // Routes
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/user', userRoutes);
+// Serve static files (after API routes)
+app.use(express.static('.'));
 
 // Health check
 app.get('/api/health', (req, res) => {
