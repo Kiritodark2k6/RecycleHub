@@ -3,10 +3,10 @@ require('dotenv').config();
 
 module.exports = {
     // MongoDB Configuration
-    MONGODB_URI: process.env.MONGODB_URI || 'mongodb+srv://tuandung2006a_db_user:0lLj37s6FkFPWpLI@recyclehub.4xzcat7.mongodb.net/recyclehub?retryWrites=true&w=majority',
+    MONGODB_URI: process.env.MONGODB_URI || 'mongodb+srv://recyclehub_user:RecycleHub123@recyclehub.4xzcat7.mongodb.net/recyclehub?retryWrites=true&w=majority&appName=Recyclehub',
     
     // JWT Configuration
-    JWT_SECRET: process.env.JWT_SECRET || 'recyclehub_super_secret_jwt_key_2025',
+    JWT_SECRET: process.env.JWT_SECRET || 'your_super_secret_jwt_key_here_make_it_long_and_random_123456789',
     JWT_EXPIRE: process.env.JWT_EXPIRE || '7d',
     
     // Server Configuration
@@ -20,3 +20,4 @@ module.exports = {
     RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 900000, // 15 minutes
     RATE_LIMIT_MAX_REQUESTS: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100
 };
+
