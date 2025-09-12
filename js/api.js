@@ -36,7 +36,7 @@ class RecycleHubAPI {
     // Authentication methods
     async register(userData) {
         try {
-            const response = await fetch(`${this.baseURL}/auth/register`, {
+           const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/auth/register', {
                 method: 'POST',
                 headers: this.getHeaders(false),
                 body: JSON.stringify(userData)
@@ -58,7 +58,7 @@ class RecycleHubAPI {
 
     async login(loginData) {
         try {
-            const response = await fetch(`${this.baseURL}/auth/login`, {
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/auth/login', {
                 method: 'POST',
                 headers: this.getHeaders(false),
                 body: JSON.stringify(loginData)
@@ -80,7 +80,7 @@ class RecycleHubAPI {
 
     async getCurrentUser() {
         try {
-            const response = await fetch(`${this.baseURL}/auth/me`, {
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/auth/me', {
                 method: 'GET',
                 headers: this.getHeaders()
             });
@@ -101,7 +101,7 @@ class RecycleHubAPI {
 
     async refreshToken() {
         try {
-            const response = await fetch(`${this.baseURL}/auth/refresh`, {
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/auth/refresh', {
                 method: 'POST',
                 headers: this.getHeaders()
             });
@@ -123,7 +123,7 @@ class RecycleHubAPI {
     async logout() {
         try {
             if (this.token) {
-                await fetch(`${this.baseURL}/auth/logout`, {
+                await fetch('https://recyclehub-production-aba0.up.railway.app/api/auth/logout', {
                     method: 'POST',
                     headers: this.getHeaders()
                 });
@@ -141,7 +141,7 @@ class RecycleHubAPI {
     // User management methods
     async updateProfile(profileData) {
         try {
-            const response = await fetch(`${this.baseURL}/user/profile`, {
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/user/profile', {
                 method: 'PUT',
                 headers: this.getHeaders(),
                 body: JSON.stringify(profileData)
@@ -161,7 +161,7 @@ class RecycleHubAPI {
 
     async changePassword(passwordData) {
         try {
-            const response = await fetch(`${this.baseURL}/user/change-password`, {
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/user/change-password', {
                 method: 'PUT',
                 headers: this.getHeaders(),
                 body: JSON.stringify(passwordData)
@@ -175,7 +175,7 @@ class RecycleHubAPI {
 
     async getUserStats() {
         try {
-            const response = await fetch(`${this.baseURL}/user/stats`, {
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/user/stats', {
                 method: 'GET',
                 headers: this.getHeaders()
             });
@@ -189,7 +189,7 @@ class RecycleHubAPI {
     async getLeaderboard(options = {}) {
         try {
             const params = new URLSearchParams(options);
-            const response = await fetch(`${this.baseURL}/user/leaderboard?${params}`, {
+            const response = await fetch(`https://recyclehub-production-aba0.up.railway.app/api/user/leaderboard?${params}`, {
                 method: 'GET',
                 headers: this.getHeaders(false)
             });
@@ -202,7 +202,7 @@ class RecycleHubAPI {
 
     async deleteAccount() {
         try {
-            const response = await fetch(`${this.baseURL}/user/account`, {
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/user/account', {
                 method: 'DELETE',
                 headers: this.getHeaders()
             });
@@ -222,7 +222,7 @@ class RecycleHubAPI {
     // Health check
     async healthCheck() {
         try {
-            const response = await fetch(`${this.baseURL}/health`);
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/health');
             return await this.handleResponse(response);
         } catch (error) {
             throw new Error('Server không khả dụng');
