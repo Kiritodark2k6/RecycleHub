@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
+    "dev": "nodemon server.js"
   },
   "keywords": ["recycle", "plastic", "environment", "api"],
   "author": "RecycleHub Team",
