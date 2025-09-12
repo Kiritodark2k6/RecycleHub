@@ -1571,6 +1571,27 @@
             margin-bottom: 1rem;
         }
 
+        .earnings-result {
+            background: rgba(46, 204, 113, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
+        .earnings-label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .earnings-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--success-color);
+        }
+
         .points-value {
             font-size: 1.5rem;
             font-weight: 700;
@@ -2383,18 +2404,34 @@
                         <div class="calculator-content">
                             <div class="input-group">
                                 <label for="wasteAmount">Số kg rác thải:</label>
-                                <input type="number" id="wasteAmount" min="0" step="0.1" placeholder="Nhập số kg">
-                        </div>
+                                <input type="number" id="wasteAmount" min="0.1" step="0.1" placeholder="Nhập số kg" max="1000">
+                            </div>
+                            <div class="input-group">
+                                <label for="plasticType">Loại nhựa:</label>
+                                <select id="plasticType">
+                                    <option value="mixed">Tất cả các loại</option>
+                                    <option value="pet">Chai PET</option>
+                                    <option value="bag">Túi nhựa</option>
+                                    <option value="box">Hộp nhựa</option>
+                                </select>
+                            </div>
                             <div class="points-result">
                                 <span class="points-label">Điểm nhận được:</span>
                                 <span class="points-value" id="calculatedPoints">0 điểm</span>
-                    </div>
+                            </div>
+                            <div class="earnings-result">
+                                <span class="earnings-label">Giá trị tiền mặt:</span>
+                                <span class="earnings-value" id="calculatedEarnings">0 VND</span>
+                            </div>
                             <div class="bonus-info" id="bonusInfo" style="display: none;">
                                 <i class="fas fa-star"></i>
-                                <span>Bạn nhận được điểm bonus vì có từ 10kg trở lên!</span>
+                                <span id="bonusMessage">Bạn nhận được điểm bonus vì có từ 10kg trở lên!</span>
+                            </div>
+                            <button class="btn btn-primary" id="submitRecycleBtn" style="margin-top: 1rem; width: 100%;">
+                                <i class="fas fa-recycle"></i> Đăng ký đổi rác
+                            </button>
                         </div>
                     </div>
-                        </div>
                 </div>
 
                 <!-- Current Points Display -->
@@ -3252,6 +3289,21 @@
                     wasteInput.addEventListener('input', (e) => this.calculatePoints(e.target.value));
                 }
 
+                const plasticTypeSelect = document.getElementById('plasticType');
+                if (plasticTypeSelect) {
+                    plasticTypeSelect.addEventListener('change', () => {
+                        const wasteAmount = document.getElementById('wasteAmount')?.value;
+                        if (wasteAmount) {
+                            this.calculatePoints(wasteAmount);
+                        }
+                    });
+                }
+
+                const submitRecycleBtn = document.getElementById('submitRecycleBtn');
+                if (submitRecycleBtn) {
+                    submitRecycleBtn.addEventListener('click', () => this.submitRecycle());
+                }
+
                 // Check-in button (dashboard)
                 const checkInBtn = document.getElementById('checkInBtn');
                 if (checkInBtn) {
@@ -3277,8 +3329,34 @@
                 }
             }
 
-            calculatePoints(wasteAmount) {
+            async calculatePoints(wasteAmount) {
                 const amount = parseFloat(wasteAmount) || 0;
+                
+                if (amount < 0.1) {
+                    this.updatePointsDisplay(0, 0, false, '');
+                    return;
+                }
+
+                try {
+                    const plasticType = document.getElementById('plasticType')?.value || 'mixed';
+                    const result = await window.RecycleHubAPI.calculatePoints(amount, plasticType);
+                    
+                    if (result.success) {
+                        this.updatePointsDisplay(
+                            result.data.totalPoints,
+                            result.data.totalEarnings,
+                            result.data.hasBonus,
+                            result.data.bonusMessage
+                        );
+                    }
+                } catch (error) {
+                    console.error('Error calculating points:', error);
+                    // Fallback to local calculation
+                    this.calculatePointsLocal(amount);
+                }
+            }
+
+            calculatePointsLocal(amount) {
                 let points = 0;
                 let bonus = false;
 
@@ -3288,20 +3366,89 @@
                     
                     // Bonus: +1 point per kg if >= 10kg
                     if (amount >= 10) {
-                        points += amount; // +1 bonus point per kg
+                        points += (amount - 10) * 1; // +1 bonus point per kg for 10kg+
                         bonus = true;
                     }
                 }
 
+                const earnings = points * 1000; // 1 point = 1000 VND
+                this.updatePointsDisplay(points, earnings, bonus, 'Bạn nhận được điểm bonus vì có từ 10kg trở lên!');
+            }
+
+            updatePointsDisplay(points, earnings, hasBonus, bonusMessage) {
                 const pointsElement = document.getElementById('calculatedPoints');
+                const earningsElement = document.getElementById('calculatedEarnings');
                 const bonusInfo = document.getElementById('bonusInfo');
+                const bonusMessageElement = document.getElementById('bonusMessage');
                 
                 if (pointsElement) {
                     pointsElement.textContent = `${Math.floor(points)} điểm`;
                 }
                 
+                if (earningsElement) {
+                    earningsElement.textContent = `${Math.floor(earnings).toLocaleString()} VND`;
+                }
+                
                 if (bonusInfo) {
-                    bonusInfo.style.display = bonus ? 'flex' : 'none';
+                    bonusInfo.style.display = hasBonus ? 'flex' : 'none';
+                }
+                
+                if (bonusMessageElement && bonusMessage) {
+                    bonusMessageElement.textContent = bonusMessage;
+                }
+            }
+
+            async submitRecycle() {
+                const wasteAmount = document.getElementById('wasteAmount')?.value;
+                const plasticType = document.getElementById('plasticType')?.value;
+                
+                if (!wasteAmount || parseFloat(wasteAmount) < 0.1) {
+                    this.showAlert('Vui lòng nhập số kg rác thải (tối thiểu 0.1kg)', 'error');
+                    return;
+                }
+
+                if (!this.isLoggedIn()) {
+                    this.showAlert('Vui lòng đăng nhập để đăng ký đổi rác', 'error');
+                    this.showLoginModal();
+                    return;
+                }
+
+                try {
+                    const location = prompt('Nhập địa chỉ nộp rác:');
+                    if (!location || location.trim().length < 10) {
+                        this.showAlert('Vui lòng nhập địa chỉ chi tiết (ít nhất 10 ký tự)', 'error');
+                        return;
+                    }
+
+                    const notes = prompt('Ghi chú thêm (không bắt buộc):') || '';
+
+                    const recycleData = {
+                        plasticType: plasticType || 'mixed',
+                        weight: parseFloat(wasteAmount),
+                        location: location.trim(),
+                        notes: notes.trim()
+                    };
+
+                    this.showAlert('Đang gửi yêu cầu đổi rác...', 'info');
+                    
+                    const result = await window.RecycleHubAPI.submitRecycle(recycleData);
+                    
+                    if (result.success) {
+                        this.showAlert('Đăng ký đổi rác thành công! Chúng tôi sẽ liên hệ để xác nhận.', 'success');
+                        
+                        // Reset form
+                        document.getElementById('wasteAmount').value = '';
+                        document.getElementById('plasticType').value = 'mixed';
+                        this.updatePointsDisplay(0, 0, false, '');
+                        
+                        // Update user stats
+                        this.loadUserProfile();
+                    } else {
+                        this.showAlert(result.message || 'Có lỗi xảy ra khi đăng ký đổi rác', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error submitting recycle:', error);
+                    this.showAlert('Có lỗi xảy ra khi đăng ký đổi rác: ' + error.message, 'error');
                 }
             }
 
