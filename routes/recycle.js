@@ -166,18 +166,33 @@ router.get('/stats', authenticateToken, async (req, res) => {
 // @route   GET /api/recycle/calculate
 // @desc    Tính điểm dựa trên trọng lượng (không lưu)
 // @access  Public
-router.get('/calculate', [
-    body('weight')
-        .isFloat({ min: 0.1, max: 1000 })
-        .withMessage('Trọng lượng phải từ 0.1kg đến 1000kg'),
-    body('plasticType')
-        .optional()
-        .isIn(['pet', 'bag', 'box', 'mixed'])
-        .withMessage('Loại nhựa không hợp lệ')
-], handleValidationErrors, async (req, res) => {
+router.get('/calculate', async (req, res) => {
     try {
         const { weight, plasticType = 'mixed' } = req.query;
+        
+        // Validation
+        if (!weight || isNaN(weight)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Trọng lượng là bắt buộc và phải là số'
+            });
+        }
+        
         const weightNum = parseFloat(weight);
+        if (weightNum < 0.1 || weightNum > 1000) {
+            return res.status(400).json({
+                success: false,
+                message: 'Trọng lượng phải từ 0.1kg đến 1000kg'
+            });
+        }
+        
+        const validPlasticTypes = ['pet', 'bag', 'box', 'mixed'];
+        if (!validPlasticTypes.includes(plasticType)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Loại nhựa không hợp lệ'
+            });
+        }
 
         // Tính điểm
         const basePoints = weightNum * 10; // 10 điểm/kg
