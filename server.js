@@ -14,9 +14,28 @@ const PORT = config.PORT;
 // Middleware
 app.use(helmet());
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'file://', 'null'],
-    credentials: true
+    origin: [
+        'http://localhost:3000', 
+        'http://127.0.0.1:3000', 
+        'file://', 
+        'null',
+        'https://kiritodark2k6.github.io',
+        'https://kiritodark2k6.github.io/RecycleHub',
+        /\.github\.io$/  // Cho phép tất cả GitHub Pages domains
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    optionsSuccessStatus: 200
 }));
+// Handle preflight requests
+app.options('*', (req, res) => {
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.sendStatus(200);
+});
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
