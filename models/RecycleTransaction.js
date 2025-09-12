@@ -141,7 +141,7 @@ recycleTransactionSchema.methods.cancel = async function() {
 
 // Static method để lấy thống kê
 recycleTransactionSchema.statics.getStats = async function(userId = null) {
-    const matchStage = userId ? { userId: mongoose.Types.ObjectId(userId) } : {};
+        const matchStage = userId ? { userId: new mongoose.Types.ObjectId(userId) } : {};
     
     const stats = await this.aggregate([
         { $match: { ...matchStage, status: 'completed' } },
