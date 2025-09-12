@@ -5,6 +5,7 @@ class RecycleHubAPI {
         const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
         this.baseURL = isProduction 
             ? 'recyclehub-production-aba0.up.railway.app/api'  // Thay bằng URL backend production của bạn
+            : 'http://localhost:5000/api';
         this.token = localStorage.getItem('recyclehub_token');
     }
 
