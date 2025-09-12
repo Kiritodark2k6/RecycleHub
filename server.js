@@ -10,6 +10,20 @@ const userRoutes = require('./routes/user');
 
 const app = express();
 const PORT = config.PORT;
+// Trust proxy for Railway deployment
+app.set('trust proxy', 1);
+
+// Debug middleware for proxy headers
+app.use((req, res, next) => {
+    console.log('🔍 Request Info:', {
+        ip: req.ip,
+        ips: req.ips,
+        xForwardedFor: req.get('X-Forwarded-For'),
+        xRealIp: req.get('X-Real-IP'),
+        userAgent: req.get('User-Agent')
+    });
+    next();
+});
 
 // Middleware
 app.use(helmet());
@@ -43,7 +57,10 @@ app.use(express.urlencoded({ extended: true }));
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
-    message: 'Quá nhiều yêu cầu từ IP này, vui lòng thử lại sau.'
+    message: 'Quá nhiều yêu cầu từ IP này, vui lòng thử lại sau.',
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    trustProxy: true // Trust proxy for Railway
 });
 app.use(limiter);
 
@@ -51,7 +68,10 @@ app.use(limiter);
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 50, // limit each IP to 50 auth requests per windowMs (tăng từ 5 lên 50)
-    message: 'Quá nhiều lần thử đăng nhập, vui lòng thử lại sau 15 phút.'
+    message: 'Quá nhiều lần thử đăng nhập, vui lòng thử lại sau 15 phút.',
+    standardHeaders: true,
+    legacyHeaders: false,
+    trustProxy: true
 });
 
 // Routes
