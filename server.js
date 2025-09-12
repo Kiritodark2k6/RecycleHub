@@ -77,6 +77,7 @@ const authLimiter = rateLimit({
 // Routes
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/recycle', recycleRoutes);
 // Serve static files (after API routes)
 app.use(express.static('.'));
 
