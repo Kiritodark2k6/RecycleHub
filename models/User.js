@@ -61,6 +61,18 @@ const userSchema = new mongoose.Schema({
         totalOrders: {
             type: Number,
             default: 0
+                    },
+        totalPoints: {
+            type: Number,
+            default: 0
+        },
+        totalTransactions: {
+            type: Number,
+            default: 0
+        },
+        currentPoints: {
+            type: Number,
+            default: 0
         }
     },
     lastLogin: {
