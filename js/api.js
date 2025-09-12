@@ -228,6 +228,67 @@ class RecycleHubAPI {
             throw new Error('Server không khả dụng');
         }
     }
+    // Recycle methods
+    async submitRecycle(recycleData) {
+        try {
+            console.log('🔄 Đang gửi request đổi rác...', recycleData);
+            
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/recycle/submit', {
+                method: 'POST',
+                headers: this.getHeaders(),
+                body: JSON.stringify(recycleData)
+            });
+
+            console.log('📊 Response status:', response.status);
+            const result = await this.handleResponse(response);
+            
+            return result;
+        } catch (error) {
+            console.error('❌ Lỗi đổi rác:', error);
+            throw new Error(`Đổi rác thất bại: ${error.message}`);
+        }
+    }
+
+    async getRecycleHistory(options = {}) {
+        try {
+            const params = new URLSearchParams(options);
+            const response = await fetch(`https://recyclehub-production-aba0.up.railway.app/api/recycle/history?${params}`, {
+                method: 'GET',
+                headers: this.getHeaders()
+            });
+
+            return await this.handleResponse(response);
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
+    async getRecycleStats() {
+        try {
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/recycle/stats', {
+                method: 'GET',
+                headers: this.getHeaders()
+            });
+
+            return await this.handleResponse(response);
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
+    async calculatePoints(weight, plasticType = 'mixed') {
+        try {
+            const params = new URLSearchParams({ weight, plasticType });
+            const response = await fetch(`https://recyclehub-production-aba0.up.railway.app/api/recycle/calculate?${params}`, {
+                method: 'GET',
+                headers: this.getHeaders(false)
+            });
+
+            return await this.handleResponse(response);
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
 
     // Utility methods
     isLoggedIn() {
