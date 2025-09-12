@@ -3398,6 +3398,22 @@
                 }
             }
 
+            async updateCurrentPoints() {
+                try {
+                    if (window.RecycleHubAPI.isLoggedIn()) {
+                        const result = await window.RecycleHubAPI.getRecycleStats();
+                        if (result.success) {
+                            const currentPointsElement = document.getElementById('currentPoints');
+                            if (currentPointsElement) {
+                                currentPointsElement.textContent = `${result.data.currentPoints} điểm`;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error updating current points:', error);
+                }
+            }
+
             async submitRecycle() {
                 const wasteAmount = document.getElementById('wasteAmount')?.value;
                 const plasticType = document.getElementById('plasticType')?.value;
@@ -3407,9 +3423,13 @@
                     return;
                 }
 
-                if (!this.isLoggedIn()) {
+                if (!window.RecycleHubAPI.isLoggedIn()) {
                     this.showAlert('Vui lòng đăng nhập để đăng ký đổi rác', 'error');
-                    this.showLoginModal();
+                    // Show login modal
+                    const loginModal = document.getElementById('loginModal');
+                    if (loginModal) {
+                        loginModal.style.display = 'block';
+                    }
                     return;
                 }
 
@@ -3441,8 +3461,8 @@
                         document.getElementById('plasticType').value = 'mixed';
                         this.updatePointsDisplay(0, 0, false, '');
                         
-                        // Update user stats
-                        this.loadUserProfile();
+                        // Update current points display
+                        this.updateCurrentPoints();
                     } else {
                         this.showAlert(result.message || 'Có lỗi xảy ra khi đăng ký đổi rác', 'error');
                     }
