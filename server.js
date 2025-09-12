@@ -8,22 +8,26 @@ const config = require('./config');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const recycleRoutes = require('./routes/recycle');
+
 const app = express();
 const PORT = config.PORT;
+
 // Trust proxy for Railway deployment
 app.set('trust proxy', 1);
 
-// Debug middleware for proxy headers
-app.use((req, res, next) => {
-    console.log('🔍 Request Info:', {
-        ip: req.ip,
-        ips: req.ips,
-        xForwardedFor: req.get('X-Forwarded-For'),
-        xRealIp: req.get('X-Real-IP'),
-        userAgent: req.get('User-Agent')
+// Debug middleware for proxy headers (only in development)
+if (process.env.NODE_ENV !== 'production') {
+    app.use((req, res, next) => {
+        console.log('🔍 Request Info:', {
+            ip: req.ip,
+            ips: req.ips,
+            xForwardedFor: req.get('X-Forwarded-For'),
+            xRealIp: req.get('X-Real-IP'),
+            userAgent: req.get('User-Agent')
+        });
+        next();
     });
-    next();
-});
+}
 
 // Middleware
 app.use(helmet());
@@ -50,6 +54,7 @@ app.options('*', (req, res) => {
     res.header('Access-Control-Allow-Credentials', 'true');
     res.sendStatus(200);
 });
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -108,13 +113,17 @@ app.use('*', (req, res) => {
     });
 });
 
-// MongoDB connection options
+// MongoDB connection options (Mongoose 8.x compatible)
 const mongooseOptions = {
     maxPoolSize: 10, // Maintain up to 10 socket connections
     serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
     socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
 };
+
 // MongoDB connection
+console.log('🔄 Đang kết nối MongoDB Atlas...');
+console.log('📊 Connection String:', config.MONGODB_URI.replace(/\/\/.*@/, '//***:***@'));
+
 mongoose.connect(config.MONGODB_URI, mongooseOptions)
 .then(() => {
     console.log('✅ Kết nối MongoDB Atlas thành công');
@@ -122,14 +131,15 @@ mongoose.connect(config.MONGODB_URI, mongooseOptions)
     console.log(`🌐 Host: ${mongoose.connection.host}`);
     
     app.listen(PORT, () => {
-        console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
-        console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+        console.log(`🚀 Server đang chạy tại port ${PORT}`);
+        console.log(`📊 Health check: /api/health`);
         console.log(`🔗 MongoDB Atlas: Đã kết nối thành công`);
     });
 })
 .catch((error) => {
     console.error('❌ Lỗi kết nối MongoDB Atlas:', error.message);
     console.error('💡 Kiểm tra lại connection string và network access trong MongoDB Atlas');
+    console.error('💡 Error details:', error);
     process.exit(1);
 });
 
@@ -148,6 +158,7 @@ mongoose.connection.on('disconnected', () => {
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
+    console.log('🔄 Nhận tín hiệu SIGINT, đang đóng server...');
     try {
         await mongoose.connection.close();
         console.log('🔒 Kết nối MongoDB đã được đóng do ứng dụng kết thúc');
@@ -156,6 +167,29 @@ process.on('SIGINT', async () => {
         console.error('❌ Lỗi khi đóng kết nối MongoDB:', error);
         process.exit(1);
     }
+});
+
+process.on('SIGTERM', async () => {
+    console.log('🔄 Nhận tín hiệu SIGTERM, đang đóng server...');
+    try {
+        await mongoose.connection.close();
+        console.log('🔒 Kết nối MongoDB đã được đóng do ứng dụng kết thúc');
+        process.exit(0);
+    } catch (error) {
+        console.error('❌ Lỗi khi đóng kết nối MongoDB:', error);
+        process.exit(1);
+    }
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+    console.error('❌ Uncaught Exception:', error);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+    process.exit(1);
 });
 
 module.exports = app;
