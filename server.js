@@ -7,7 +7,7 @@ const config = require('./config');
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
-
+const recycleRoutes = require('./routes/recycle');
 const app = express();
 const PORT = config.PORT;
 // Trust proxy for Railway deployment
