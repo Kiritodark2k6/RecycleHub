@@ -3411,6 +3411,10 @@
                             <i class="fas fa-ticket-alt"></i>
                             Voucher của tôi
                         </button>
+                        <button type="button" class="action-btn" id="fixIndexBtn" style="background: #ff6b6b;">
+                            <i class="fas fa-wrench"></i>
+                            Fix Index
+                        </button>
                     </div>
                 </div>
             </div>
@@ -4156,6 +4160,13 @@
                 if (wasteAmountInput) {
                     wasteAmountInput.addEventListener('input', () => this.updatePointsPreview());
                 }
+
+                // Fix index button
+                const fixIndexBtn = document.getElementById('fixIndexBtn');
+                if (fixIndexBtn) {
+                    fixIndexBtn.addEventListener('click', () => this.fixVoucherIndex());
+                }
+
             }
 
             async calculatePoints(wasteAmount) {
@@ -4364,6 +4375,24 @@
                     document.body.style.overflow = 'auto';
                 }
             }
+
+            async fixVoucherIndex() {
+                try {
+                    console.log('Fixing voucher index...');
+                    const result = await window.RecycleHubAPI.fixVoucherIndex();
+                    console.log('Fix index result:', result);
+                    
+                    if (result.success) {
+                        this.showAlert('Đã sửa index thành công! Bây giờ có thể thêm rác thải.', 'success');
+                    } else {
+                        this.showAlert(`Lỗi sửa index: ${result.message}`, 'error');
+                    }
+                } catch (error) {
+                    console.error('Fix index error:', error);
+                    this.showAlert(`Lỗi sửa index: ${error.message}`, 'error');
+                }
+            }
+
 
             async viewTransactionHistory() {
                 // Kiểm tra đăng nhập
