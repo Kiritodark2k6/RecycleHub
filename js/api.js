@@ -12,7 +12,8 @@ class RecycleHubAPI {
     // Helper method để tạo headers
     getHeaders(includeAuth = true) {
         const headers = {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
         };
         
         if (includeAuth && this.token) {
@@ -22,25 +23,58 @@ class RecycleHubAPI {
         return headers;
     }
 
-    // Helper method để xử lý response
-    async handleResponse(response) {
-        const data = await response.json();
+    // Helper method để tạo fetch options chuẩn
+    getFetchOptions(method = 'GET', body = null, includeAuth = true) {
+        const options = {
+            method: method,
+            mode: 'cors',
+            credentials: 'include',
+            headers: this.getHeaders(includeAuth)
+        };
         
-        if (!response.ok) {
-            throw new Error(data.message || 'Có lỗi xảy ra');
+        if (body) {
+            options.body = JSON.stringify(body);
         }
         
-        return data;
+        return options;
+    }
+
+    // Helper method để xử lý response
+    async handleResponse(response) {
+        // Kiểm tra nếu response không ok
+        if (!response.ok) {
+            let errorMessage = 'Có lỗi xảy ra';
+            
+            try {
+                const data = await response.json();
+                errorMessage = data.message || errorMessage;
+            } catch (e) {
+                // Nếu không parse được JSON, sử dụng status text
+                errorMessage = response.statusText || errorMessage;
+            }
+            
+            // Xử lý các lỗi CORS cụ thể
+            if (response.status === 0 || response.type === 'opaque') {
+                errorMessage = 'Lỗi CORS: Không thể kết nối đến server. Vui lòng kiểm tra cấu hình CORS.';
+            }
+            
+            throw new Error(errorMessage);
+        }
+        
+        try {
+            const data = await response.json();
+            return data;
+        } catch (e) {
+            throw new Error('Lỗi parse JSON response');
+        }
     }
 
     // Authentication methods
     async register(userData) {
         try {
-           const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/auth/register', {
-                method: 'POST',
-                headers: this.getHeaders(false),
-                body: JSON.stringify(userData)
-            });
+           const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/auth/register', 
+                this.getFetchOptions('POST', userData, false)
+            );
 
             const result = await this.handleResponse(response);
             
@@ -58,11 +92,9 @@ class RecycleHubAPI {
 
     async login(loginData) {
         try {
-            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/auth/login', {
-                method: 'POST',
-                headers: this.getHeaders(false),
-                body: JSON.stringify(loginData)
-            });
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/auth/login', 
+                this.getFetchOptions('POST', loginData, false)
+            );
 
             const result = await this.handleResponse(response);
             
@@ -80,10 +112,9 @@ class RecycleHubAPI {
 
     async getCurrentUser() {
         try {
-            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/auth/me', {
-                method: 'GET',
-                headers: this.getHeaders()
-            });
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/auth/me', 
+                this.getFetchOptions('GET')
+            );
 
             const result = await this.handleResponse(response);
             
@@ -101,10 +132,9 @@ class RecycleHubAPI {
 
     async refreshToken() {
         try {
-            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/auth/refresh', {
-                method: 'POST',
-                headers: this.getHeaders()
-            });
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/auth/refresh', 
+                this.getFetchOptions('POST')
+            );
 
             const result = await this.handleResponse(response);
             
@@ -123,10 +153,9 @@ class RecycleHubAPI {
     async logout() {
         try {
             if (this.token) {
-                await fetch('https://recyclehub-production-aba0.up.railway.app/api/auth/logout', {
-                    method: 'POST',
-                    headers: this.getHeaders()
-                });
+                await fetch('https://recyclehub-production-aba0.up.railway.app/api/auth/logout', 
+                    this.getFetchOptions('POST')
+                );
             }
         } catch (error) {
             console.warn('Logout API call failed:', error);
@@ -141,11 +170,9 @@ class RecycleHubAPI {
     // User management methods
     async updateProfile(profileData) {
         try {
-            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/user/profile', {
-                method: 'PUT',
-                headers: this.getHeaders(),
-                body: JSON.stringify(profileData)
-            });
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/user/profile', 
+                this.getFetchOptions('PUT', profileData)
+            );
 
             const result = await this.handleResponse(response);
             
@@ -161,11 +188,9 @@ class RecycleHubAPI {
 
     async changePassword(passwordData) {
         try {
-            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/user/change-password', {
-                method: 'PUT',
-                headers: this.getHeaders(),
-                body: JSON.stringify(passwordData)
-            });
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/user/change-password', 
+                this.getFetchOptions('PUT', passwordData)
+            );
 
             return await this.handleResponse(response);
         } catch (error) {
@@ -175,10 +200,9 @@ class RecycleHubAPI {
 
     async getUserStats() {
         try {
-            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/user/stats', {
-                method: 'GET',
-                headers: this.getHeaders()
-            });
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/user/stats', 
+                this.getFetchOptions('GET')
+            );
 
             return await this.handleResponse(response);
         } catch (error) {
@@ -189,10 +213,9 @@ class RecycleHubAPI {
     async getLeaderboard(options = {}) {
         try {
             const params = new URLSearchParams(options);
-            const response = await fetch(`https://recyclehub-production-aba0.up.railway.app/api/user/leaderboard?${params}`, {
-                method: 'GET',
-                headers: this.getHeaders(false)
-            });
+            const response = await fetch(`https://recyclehub-production-aba0.up.railway.app/api/user/leaderboard?${params}`, 
+                this.getFetchOptions('GET', null, false)
+            );
 
             return await this.handleResponse(response);
         } catch (error) {
@@ -202,10 +225,9 @@ class RecycleHubAPI {
 
     async deleteAccount() {
         try {
-            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/user/account', {
-                method: 'DELETE',
-                headers: this.getHeaders()
-            });
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/user/account', 
+                this.getFetchOptions('DELETE')
+            );
 
             const result = await this.handleResponse(response);
             
@@ -222,11 +244,9 @@ class RecycleHubAPI {
     // Points system methods
     async exchangeWasteForPoints(wasteData) {
         try {
-            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/points/exchange-waste', {
-                method: 'POST',
-                headers: this.getHeaders(),
-                body: JSON.stringify(wasteData)
-            });
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/points/exchange-waste', 
+                this.getFetchOptions('POST', wasteData)
+            );
 
             const result = await this.handleResponse(response);
             
@@ -243,10 +263,9 @@ class RecycleHubAPI {
 
     async dailyCheckin() {
         try {
-            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/points/daily-checkin', {
-                method: 'POST',
-                headers: this.getHeaders()
-            });
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/points/daily-checkin', 
+                this.getFetchOptions('POST')
+            );
 
             const result = await this.handleResponse(response);
             
@@ -263,10 +282,9 @@ class RecycleHubAPI {
 
     async calculatePoints(wasteAmount) {
         try {
-            const response = await fetch(`https://recyclehub-production-aba0.up.railway.app/api/points/calculator?wasteAmount=${wasteAmount}`, {
-                method: 'GET',
-                headers: this.getHeaders(false)
-            });
+            const response = await fetch(`https://recyclehub-production-aba0.up.railway.app/api/points/calculator?wasteAmount=${wasteAmount}`, 
+                this.getFetchOptions('GET', null, false)
+            );
 
             return await this.handleResponse(response);
         } catch (error) {
@@ -276,10 +294,9 @@ class RecycleHubAPI {
 
     async getUserPointsStats() {
         try {
-            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/points/user-stats', {
-                method: 'GET',
-                headers: this.getHeaders()
-            });
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/points/user-stats', 
+                this.getFetchOptions('GET')
+            );
 
             return await this.handleResponse(response);
         } catch (error) {
@@ -290,10 +307,9 @@ class RecycleHubAPI {
     async getUserTransactions(options = {}) {
         try {
             const params = new URLSearchParams(options);
-            const response = await fetch(`https://recyclehub-production-aba0.up.railway.app/api/points/transactions?${params}`, {
-                method: 'GET',
-                headers: this.getHeaders()
-            });
+            const response = await fetch(`https://recyclehub-production-aba0.up.railway.app/api/points/transactions?${params}`, 
+                this.getFetchOptions('GET')
+            );
 
             return await this.handleResponse(response);
         } catch (error) {
@@ -304,10 +320,9 @@ class RecycleHubAPI {
     async getPointsLeaderboard(options = {}) {
         try {
             const params = new URLSearchParams(options);
-            const response = await fetch(`https://recyclehub-production-aba0.up.railway.app/api/points/leaderboard?${params}`, {
-                method: 'GET',
-                headers: this.getHeaders(false)
-            });
+            const response = await fetch(`https://recyclehub-production-aba0.up.railway.app/api/points/leaderboard?${params}`, 
+                this.getFetchOptions('GET', null, false)
+            );
 
             return await this.handleResponse(response);
         } catch (error) {
@@ -318,10 +333,52 @@ class RecycleHubAPI {
     // Health check
     async healthCheck() {
         try {
-            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/health');
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/health', {
+                method: 'GET',
+                mode: 'cors',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
             return await this.handleResponse(response);
         } catch (error) {
-            throw new Error('Server không khả dụng');
+            console.error('Health check failed:', error);
+            throw new Error('Server không khả dụng: ' + error.message);
+        }
+    }
+
+    // Test CORS connection
+    async testCorsConnection() {
+        try {
+            console.log('Testing CORS connection...');
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/health', {
+                method: 'GET',
+                mode: 'cors',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+            
+            console.log('CORS test response:', {
+                status: response.status,
+                statusText: response.statusText,
+                headers: Object.fromEntries(response.headers.entries())
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('CORS test successful:', data);
+                return { success: true, data };
+            } else {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+        } catch (error) {
+            console.error('CORS test failed:', error);
+            return { success: false, error: error.message };
         }
     }
 
