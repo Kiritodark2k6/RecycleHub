@@ -100,37 +100,76 @@ router.post('/exchange-waste', exchangeLimiter, [
         .withMessage('Loại nhựa không hợp lệ')
 ], handleValidationErrors, authenticateToken, validateUserPermissions, async (req, res) => {
     try {
+        console.log('Exchange waste request:', req.body);
+        
         const { wasteAmount, location = '', plasticType = '' } = req.body;
         const user = req.userData; // Đã được validate trong middleware
+
+        console.log('User data:', {
+            userId: user._id,
+            currentPoints: user.points,
+            wasteAmount: wasteAmount,
+            location: location,
+            plasticType: plasticType
+        });
 
         // Log giao dịch để audit
         console.log(`[EXCHANGE] User ${user._id} exchanging ${wasteAmount}kg waste at ${new Date().toISOString()}`);
         
         // Đổi rác thành điểm
+        console.log('Calling exchangeWasteForPoints...');
         const transaction = await user.exchangeWasteForPoints(
             parseFloat(wasteAmount), 
             location, 
             plasticType
         );
+        console.log('Transaction created:', transaction._id);
 
         // Lấy thông tin user đã cập nhật
+        console.log('Populating user data...');
         await user.populate('wasteTransactions');
         const updatedUser = await User.findById(user._id);
+        console.log('Updated user points:', updatedUser.points);
 
-        res.status(201).json({
+        const responseData = {
             success: true,
             message: `Đổi ${wasteAmount}kg rác thành công! Nhận được ${transaction.pointsEarned} điểm.`,
             data: {
                 transaction: transaction.getDetails(),
                 user: updatedUser.getPublicProfile()
             }
-        });
+        };
+
+        console.log('Sending response:', responseData);
+        res.status(201).json(responseData);
 
     } catch (error) {
-        console.error('Exchange waste error:', error);
+        console.error('Exchange waste error details:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
+        
+        // Xử lý các lỗi cụ thể
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                success: false,
+                message: 'Dữ liệu không hợp lệ',
+                details: error.message
+            });
+        }
+        
+        if (error.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                message: 'Giao dịch đã tồn tại'
+            });
+        }
+
         res.status(500).json({
             success: false,
-            message: 'Lỗi server khi đổi rác thành điểm'
+            message: 'Lỗi server khi đổi rác thành điểm',
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Có lỗi xảy ra'
         });
     }
 });
@@ -540,6 +579,49 @@ router.get('/leaderboard', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Lỗi server khi lấy bảng xếp hạng'
+        });
+    }
+});
+
+// @route   POST /api/points/fix-voucher-index
+// @desc    Fix voucherCode index to allow multiple null values
+// @access  Public (temporary fix)
+router.post('/fix-voucher-index', async (req, res) => {
+    try {
+        console.log('Fixing voucherCode index...');
+        
+        const Transaction = require('../models/Transaction');
+        const mongoose = require('mongoose');
+        
+        // Drop existing index
+        try {
+            await Transaction.collection.dropIndex('voucherCode_1');
+            console.log('Dropped existing voucherCode index');
+        } catch (error) {
+            console.log('Index might not exist:', error.message);
+        }
+        
+        // Create new sparse unique index
+        await Transaction.collection.createIndex(
+            { voucherCode: 1 }, 
+            { 
+                unique: true, 
+                sparse: true,
+                name: 'voucherCode_1_sparse'
+            }
+        );
+        console.log('Created new sparse unique index for voucherCode');
+        
+        res.json({
+            success: true,
+            message: 'VoucherCode index fixed successfully'
+        });
+    } catch (error) {
+        console.error('Fix index error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fixing voucherCode index',
+            error: error.message
         });
     }
 });
