@@ -363,6 +363,7 @@ class RecycleHubAPI {
         }
     }
 
+
     // Health check
     async healthCheck() {
         try {
