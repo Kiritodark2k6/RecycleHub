@@ -298,6 +298,140 @@ router.get('/transactions', pointsLimiter, authenticateToken, validateUserPermis
     }
 });
 
+// @route   POST /api/points/redeem-voucher
+// @desc    Đổi điểm lấy voucher
+// @access  Private
+router.post('/redeem-voucher', [
+    body('voucherType')
+        .isIn(['shopping', 'ecommerce', 'food', 'entertainment'])
+        .withMessage('Loại voucher không hợp lệ'),
+    body('pointsRequired')
+        .isInt({ min: 100, max: 10000 })
+        .withMessage('Số điểm phải từ 100 đến 10000'),
+    body('voucherValue')
+        .isInt({ min: 10000, max: 1000000 })
+        .withMessage('Giá trị voucher phải từ 10.000 đến 1.000.000 VNĐ')
+], handleValidationErrors, authenticateToken, validateUserPermissions, async (req, res) => {
+    try {
+        const { voucherType, pointsRequired, voucherValue, voucherName, voucherDescription, iconClass } = req.body;
+        const user = req.userData;
+
+        // Kiểm tra đủ điểm không
+        if (user.points < pointsRequired) {
+            return res.status(400).json({
+                success: false,
+                message: `Không đủ điểm! Bạn cần ${pointsRequired} điểm để đổi voucher này.`
+            });
+        }
+
+        // Tạo voucher code unique
+        const voucherCode = await Transaction.generateUniqueVoucherCode();
+
+        // Tạo transaction cho việc đổi voucher
+        const transaction = new Transaction({
+            userId: user._id,
+            type: 'redemption',
+            pointsEarned: -pointsRequired, // Trừ điểm
+            pointsBefore: user.points,
+            pointsAfter: user.points - pointsRequired,
+            description: `Đổi ${pointsRequired} điểm lấy voucher ${voucherName}`,
+            status: 'completed',
+            voucherCode: voucherCode,
+            voucherDetails: {
+                name: voucherName || 'Voucher mua sắm',
+                value: voucherValue,
+                description: voucherDescription || 'Voucher mua sắm tại cửa hàng đối tác',
+                iconClass: iconClass || 'fas fa-ticket-alt'
+            }
+        });
+
+        await transaction.save();
+
+        // Cập nhật điểm của user
+        user.points -= pointsRequired;
+        user.wasteTransactions.push(transaction._id);
+        await user.save();
+
+        res.status(201).json({
+            success: true,
+            message: `Đổi voucher thành công! Mã voucher: ${voucherCode}`,
+            data: {
+                transaction: transaction.getDetails(),
+                user: user.getPublicProfile(),
+                voucherCode: voucherCode
+            }
+        });
+
+    } catch (error) {
+        console.error('Redeem voucher error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi server khi đổi voucher'
+        });
+    }
+});
+
+// @route   GET /api/points/vouchers
+// @desc    Lấy danh sách voucher đã đổi của user
+// @access  Private
+router.get('/vouchers', pointsLimiter, authenticateToken, validateUserPermissions, async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { page = 1, limit = 20 } = req.query;
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        // Lấy transactions có voucher code
+        const vouchers = await Transaction.find({ 
+            userId: userId, 
+            type: 'redemption',
+            voucherCode: { $exists: true, $ne: null },
+            status: 'completed'
+        })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit));
+
+        // Đếm tổng số vouchers
+        const total = await Transaction.countDocuments({ 
+            userId: userId, 
+            type: 'redemption',
+            voucherCode: { $exists: true, $ne: null },
+            status: 'completed'
+        });
+
+        // Format vouchers
+        const formattedVouchers = vouchers.map(voucher => ({
+            id: voucher._id,
+            voucherCode: voucher.voucherCode,
+            voucherDetails: voucher.voucherDetails,
+            pointsUsed: Math.abs(voucher.pointsEarned),
+            redeemedAt: voucher.createdAt,
+            status: voucher.status
+        }));
+
+        res.json({
+            success: true,
+            data: {
+                vouchers: formattedVouchers,
+                pagination: {
+                    currentPage: parseInt(page),
+                    totalPages: Math.ceil(total / parseInt(limit)),
+                    totalVouchers: total,
+                    hasNext: skip + vouchers.length < total,
+                    hasPrev: parseInt(page) > 1
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Get vouchers error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi server khi lấy danh sách voucher'
+        });
+    }
+});
+
 // @route   GET /api/points/leaderboard
 // @desc    Lấy bảng xếp hạng theo điểm
 // @access  Public
