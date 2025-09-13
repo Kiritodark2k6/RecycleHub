@@ -4223,6 +4223,7 @@
                 });
             }
 
+
             redeemVoucher(requiredPoints, voucherValue, voucherName, voucherDesc, iconClass) {
                 if (this.currentPoints < requiredPoints) {
                     this.showAlert(`Không đủ điểm! Bạn cần ${requiredPoints} điểm để đổi voucher này.`, 'error');
@@ -4242,8 +4243,9 @@
                     points: requiredPoints,
                     value: voucherValue,
                     name: voucherName,
-                    desc: voucherDesc,
-                    icon: iconClass
+                    description: voucherDesc,
+                    iconClass: iconClass,
+                    type: 'shopping' // Default type
                 };
 
                 // Show modal
