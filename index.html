@@ -1117,7 +1117,8 @@
             flex: 1;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
+            gap: 1rem;
         }
 
         .voucher-info h4 {
@@ -1168,6 +1169,8 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
+            min-width: 200px;
+            flex-shrink: 0;
         }
 
         .voucher-code {
@@ -1179,6 +1182,8 @@
             border-radius: 12px;
             border: 2px solid #ffc107;
             margin-bottom: 0.5rem;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .code-label {
@@ -1198,6 +1203,8 @@
             border-radius: 6px;
             min-width: 120px;
             text-align: center;
+            flex: 1;
+            word-break: break-all;
         }
 
         .copy-btn {
@@ -1224,6 +1231,42 @@
             display: flex;
             justify-content: center;
             margin-top: 2rem;
+        }
+
+        /* Responsive design for voucher items */
+        @media (max-width: 768px) {
+            .voucher-item {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 1rem;
+            }
+
+            .voucher-icon {
+                align-self: center;
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+
+            .voucher-details {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .voucher-code-section {
+                align-items: stretch;
+                min-width: auto;
+            }
+
+            .voucher-code {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+
+            .code-value {
+                min-width: auto;
+                word-break: break-all;
+            }
         }
 
         .form-group {
