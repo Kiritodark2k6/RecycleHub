@@ -65,6 +65,30 @@ const transactionSchema = new mongoose.Schema({
             default: 0
         }
     },
+    voucherCode: {
+        type: String,
+        default: null,
+        unique: true,
+        sparse: true // Cho phép null values
+    },
+    voucherDetails: {
+        name: {
+            type: String,
+            default: ''
+        },
+        value: {
+            type: Number,
+            default: 0
+        },
+        description: {
+            type: String,
+            default: ''
+        },
+        iconClass: {
+            type: String,
+            default: ''
+        }
+    },
     processedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User', // Admin user who processed this transaction
@@ -118,6 +142,36 @@ transactionSchema.statics.calculatePoints = function(wasteAmount) {
         totalPoints: Math.floor(points),
         hasBonus: bonus
     };
+};
+
+// Static method để tạo mã voucher ngẫu nhiên
+transactionSchema.statics.generateVoucherCode = function() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    
+    for (let i = 0; i < 12; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    
+    return result;
+};
+
+// Static method để tạo voucher code unique
+transactionSchema.statics.generateUniqueVoucherCode = async function() {
+    let voucherCode;
+    let isUnique = false;
+    
+    while (!isUnique) {
+        voucherCode = this.generateVoucherCode();
+        
+        // Kiểm tra xem code đã tồn tại chưa
+        const existingTransaction = await this.findOne({ voucherCode });
+        if (!existingTransaction) {
+            isUnique = true;
+        }
+    }
+    
+    return voucherCode;
 };
 
 // Static method để lấy thống kê giao dịch của user
