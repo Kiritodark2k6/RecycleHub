@@ -330,6 +330,39 @@ class RecycleHubAPI {
         }
     }
 
+    // Voucher methods
+    async redeemVoucher(voucherData) {
+        try {
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/points/redeem-voucher', 
+                this.getFetchOptions('POST', voucherData)
+            );
+
+            const result = await this.handleResponse(response);
+            
+            if (result.success) {
+                // Cập nhật user data trong localStorage
+                localStorage.setItem('recyclehub_user', JSON.stringify(result.data.user));
+            }
+            
+            return result;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
+    async getUserVouchers(options = {}) {
+        try {
+            const params = new URLSearchParams(options);
+            const response = await fetch(`https://recyclehub-production-aba0.up.railway.app/api/points/vouchers?${params}`, 
+                this.getFetchOptions('GET')
+            );
+
+            return await this.handleResponse(response);
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
     // Health check
     async healthCheck() {
         try {
