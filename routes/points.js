@@ -593,13 +593,27 @@ router.post('/fix-voucher-index', async (req, res) => {
         const Transaction = require('../models/Transaction');
         const mongoose = require('mongoose');
         
-        // Drop existing index
+        // Drop all existing voucherCode indexes
         try {
             await Transaction.collection.dropIndex('voucherCode_1');
-            console.log('Dropped existing voucherCode index');
+            console.log('Dropped voucherCode_1 index');
         } catch (error) {
-            console.log('Index might not exist:', error.message);
+            console.log('voucherCode_1 index might not exist:', error.message);
         }
+        
+        try {
+            await Transaction.collection.dropIndex('voucherCode_1_sparse');
+            console.log('Dropped voucherCode_1_sparse index');
+        } catch (error) {
+            console.log('voucherCode_1_sparse index might not exist:', error.message);
+        }
+        
+        // Remove voucherCode field from all existing documents to avoid conflicts
+        await Transaction.updateMany(
+            { voucherCode: null },
+            { $unset: { voucherCode: 1 } }
+        );
+        console.log('Removed null voucherCode values from existing documents');
         
         // Create new sparse unique index
         await Transaction.collection.createIndex(
@@ -607,14 +621,14 @@ router.post('/fix-voucher-index', async (req, res) => {
             { 
                 unique: true, 
                 sparse: true,
-                name: 'voucherCode_1_sparse'
+                name: 'voucherCode_sparse_unique'
             }
         );
         console.log('Created new sparse unique index for voucherCode');
         
         res.json({
             success: true,
-            message: 'VoucherCode index fixed successfully'
+            message: 'VoucherCode index fixed successfully - removed null values and recreated index'
         });
     } catch (error) {
         console.error('Fix index error:', error);
