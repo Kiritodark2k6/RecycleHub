@@ -18,8 +18,8 @@ const transactionSchema = new mongoose.Schema({
     },
     pointsEarned: {
         type: Number,
-        required: [true, 'Số điểm nhận được là bắt buộc'],
-        min: [0, 'Số điểm không được âm']
+        required: [true, 'Số điểm nhận được là bắt buộc']
+        // Removed min validation to allow negative values for redemptions
     },
     pointsBefore: {
         type: Number,
@@ -110,6 +110,21 @@ transactionSchema.virtual('pointsPerKg').get(function() {
         return Math.round((this.pointsEarned / this.wasteAmount) * 100) / 100;
     }
     return 0;
+});
+
+// Pre-save middleware để validate pointsEarned dựa trên loại giao dịch
+transactionSchema.pre('save', function(next) {
+    // Nếu là giao dịch đổi voucher (redemption), cho phép pointsEarned âm
+    if (this.type === 'redemption') {
+        // Không cần validation đặc biệt, cho phép âm
+        next();
+    } else {
+        // Với các loại giao dịch khác, pointsEarned phải >= 0
+        if (this.pointsEarned < 0) {
+            return next(new Error('Số điểm không được âm cho loại giao dịch này'));
+        }
+        next();
+    }
 });
 
 // Index để tối ưu hóa truy vấn
