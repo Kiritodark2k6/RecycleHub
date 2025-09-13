@@ -176,27 +176,38 @@ transactionSchema.statics.generateUniqueVoucherCode = async function() {
 
 // Static method để lấy thống kê giao dịch của user
 transactionSchema.statics.getUserStats = async function(userId) {
-    const stats = await this.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId), status: 'completed' } },
-        {
-            $group: {
-                _id: null,
-                totalTransactions: { $sum: 1 },
-                totalWasteKg: { $sum: '$wasteAmount' },
-                totalPointsEarned: { $sum: '$pointsEarned' },
-                totalBonusPoints: { $sum: '$metadata.bonusAmount' },
-                avgPointsPerKg: { $avg: '$pointsPerKg' }
+    try {
+        const stats = await this.aggregate([
+            { $match: { userId: new mongoose.Types.ObjectId(userId), status: 'completed' } },
+            {
+                $group: {
+                    _id: null,
+                    totalTransactions: { $sum: 1 },
+                    totalWasteKg: { $sum: '$wasteAmount' },
+                    totalPointsEarned: { $sum: '$pointsEarned' },
+                    totalBonusPoints: { $sum: '$metadata.bonusAmount' },
+                    avgPointsPerKg: { $avg: '$pointsPerKg' }
+                }
             }
-        }
-    ]);
+        ]);
 
-    return stats[0] || {
-        totalTransactions: 0,
-        totalWasteKg: 0,
-        totalPointsEarned: 0,
-        totalBonusPoints: 0,
-        avgPointsPerKg: 0
-    };
+        return stats[0] || {
+            totalTransactions: 0,
+            totalWasteKg: 0,
+            totalPointsEarned: 0,
+            totalBonusPoints: 0,
+            avgPointsPerKg: 0
+        };
+    } catch (error) {
+        console.error('Error in getUserStats:', error);
+        return {
+            totalTransactions: 0,
+            totalWasteKg: 0,
+            totalPointsEarned: 0,
+            totalBonusPoints: 0,
+            avgPointsPerKg: 0
+        };
+    }
 };
 
 // Method để lấy thông tin giao dịch chi tiết
