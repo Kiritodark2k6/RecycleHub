@@ -212,6 +212,8 @@ transactionSchema.methods.getDetails = function() {
         location: this.location,
         status: this.status,
         metadata: this.metadata,
+        voucherCode: this.voucherCode,
+        voucherDetails: this.voucherDetails,
         createdAt: this.createdAt,
         pointsPerKg: this.pointsPerKg
     };
