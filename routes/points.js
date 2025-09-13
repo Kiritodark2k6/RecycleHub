@@ -303,6 +303,7 @@ router.get('/transactions', pointsLimiter, authenticateToken, validateUserPermis
 // @access  Private
 router.post('/redeem-voucher', [
     body('voucherType')
+        .optional()
         .isIn(['shopping', 'ecommerce', 'food', 'entertainment'])
         .withMessage('Loại voucher không hợp lệ'),
     body('pointsRequired')
@@ -310,11 +311,31 @@ router.post('/redeem-voucher', [
         .withMessage('Số điểm phải từ 100 đến 10000'),
     body('voucherValue')
         .isInt({ min: 10000, max: 1000000 })
-        .withMessage('Giá trị voucher phải từ 10.000 đến 1.000.000 VNĐ')
+        .withMessage('Giá trị voucher phải từ 10.000 đến 1.000.000 VNĐ'),
+    body('voucherName')
+        .optional()
+        .isLength({ min: 1, max: 100 })
+        .withMessage('Tên voucher phải từ 1-100 ký tự'),
+    body('voucherDescription')
+        .optional()
+        .isLength({ max: 500 })
+        .withMessage('Mô tả voucher không được vượt quá 500 ký tự'),
+    body('iconClass')
+        .optional()
+        .isLength({ max: 50 })
+        .withMessage('Icon class không hợp lệ')
 ], handleValidationErrors, authenticateToken, validateUserPermissions, async (req, res) => {
     try {
+        console.log('Redeem voucher request:', req.body);
+        
         const { voucherType, pointsRequired, voucherValue, voucherName, voucherDescription, iconClass } = req.body;
         const user = req.userData;
+
+        console.log('User data:', {
+            userId: user._id,
+            currentPoints: user.points,
+            pointsRequired: pointsRequired
+        });
 
         // Kiểm tra đủ điểm không
         if (user.points < pointsRequired) {
@@ -325,16 +346,18 @@ router.post('/redeem-voucher', [
         }
 
         // Tạo voucher code unique
+        console.log('Generating voucher code...');
         const voucherCode = await Transaction.generateUniqueVoucherCode();
+        console.log('Generated voucher code:', voucherCode);
 
         // Tạo transaction cho việc đổi voucher
-        const transaction = new Transaction({
+        const transactionData = {
             userId: user._id,
             type: 'redemption',
             pointsEarned: -pointsRequired, // Trừ điểm
             pointsBefore: user.points,
             pointsAfter: user.points - pointsRequired,
-            description: `Đổi ${pointsRequired} điểm lấy voucher ${voucherName}`,
+            description: `Đổi ${pointsRequired} điểm lấy voucher ${voucherName || 'Voucher mua sắm'}`,
             status: 'completed',
             voucherCode: voucherCode,
             voucherDetails: {
@@ -343,16 +366,23 @@ router.post('/redeem-voucher', [
                 description: voucherDescription || 'Voucher mua sắm tại cửa hàng đối tác',
                 iconClass: iconClass || 'fas fa-ticket-alt'
             }
-        });
+        };
 
+        console.log('Creating transaction with data:', transactionData);
+        const transaction = new Transaction(transactionData);
+
+        console.log('Saving transaction...');
         await transaction.save();
+        console.log('Transaction saved successfully');
 
         // Cập nhật điểm của user
+        console.log('Updating user points...');
         user.points -= pointsRequired;
         user.wasteTransactions.push(transaction._id);
         await user.save();
+        console.log('User updated successfully');
 
-        res.status(201).json({
+        const responseData = {
             success: true,
             message: `Đổi voucher thành công! Mã voucher: ${voucherCode}`,
             data: {
@@ -360,13 +390,38 @@ router.post('/redeem-voucher', [
                 user: user.getPublicProfile(),
                 voucherCode: voucherCode
             }
-        });
+        };
+
+        console.log('Sending success response:', responseData);
+        res.status(201).json(responseData);
 
     } catch (error) {
-        console.error('Redeem voucher error:', error);
+        console.error('Redeem voucher error details:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
+        
+        // Xử lý các lỗi cụ thể
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                success: false,
+                message: 'Dữ liệu voucher không hợp lệ',
+                details: error.message
+            });
+        }
+        
+        if (error.code === 11000) {
+            return res.status(400).json({
+                success: false,
+                message: 'Mã voucher đã tồn tại, vui lòng thử lại'
+            });
+        }
+
         res.status(500).json({
             success: false,
-            message: 'Lỗi server khi đổi voucher'
+            message: 'Lỗi server khi đổi voucher',
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Có lỗi xảy ra'
         });
     }
 });
