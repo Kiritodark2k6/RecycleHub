@@ -67,9 +67,9 @@ const transactionSchema = new mongoose.Schema({
     },
     voucherCode: {
         type: String,
-        default: null,
+        default: undefined, // Thay đổi từ null thành undefined
         unique: true,
-        sparse: true // Cho phép null values và chỉ unique khi không null
+        sparse: true // Cho phép null/undefined values và chỉ unique khi có giá trị
     },
     voucherDetails: {
         name: {
@@ -238,7 +238,7 @@ transactionSchema.methods.getDetails = function() {
         location: this.location,
         status: this.status,
         metadata: this.metadata,
-        voucherCode: this.voucherCode,
+        voucherCode: this.voucherCode || null,
         voucherDetails: this.voucherDetails,
         createdAt: this.createdAt,
         pointsPerKg: this.pointsPerKg
