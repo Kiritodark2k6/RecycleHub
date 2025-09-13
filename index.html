@@ -1236,6 +1236,200 @@
             margin-top: 2rem;
         }
 
+        /* Add Waste Modal Styles */
+        #addWasteModal .modal-content {
+            width: 90%;
+            max-width: 600px;
+            margin: 5% auto;
+        }
+
+        .waste-form-container {
+            padding: 0;
+        }
+
+        .waste-form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem 2rem 0;
+        }
+
+        .waste-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        }
+
+        .waste-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .waste-form-header h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.5rem;
+            color: #2e7d32;
+            font-weight: 700;
+        }
+
+        .waste-form-header p {
+            margin: 0;
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .waste-form {
+            padding: 0 2rem 2rem;
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding-right: 3rem;
+        }
+
+        .input-unit {
+            position: absolute;
+            right: 1rem;
+            color: #666;
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        .input-hint {
+            display: block;
+            margin-top: 0.5rem;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .points-preview {
+            background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
+            border: 2px solid #4caf50;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .points-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
+        }
+
+        .points-preview-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .points-preview-header i {
+            font-size: 1.2rem;
+        }
+
+        .points-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2e7d32;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .points-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .breakdown-item.bonus {
+            color: #ff9800;
+            font-weight: 600;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .btn-cancel {
+            background: #f5f5f5;
+            color: #666;
+            border: 2px solid #ddd;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-cancel:hover {
+            background: #e0e0e0;
+            border-color: #bbb;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #45a049, #1b5e20);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         /* Vouchers Modal - Larger Size */
         #vouchersModal .modal-content {
             width: 95%;
@@ -3298,6 +3492,108 @@
         </div>
     </div>
 
+    <!-- Add Waste Modal -->
+    <div id="addWasteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-recycle"></i> Thêm rác thải</h3>
+                <span class="close" data-modal="addWasteModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="waste-form-container">
+                    <div class="waste-form-header">
+                        <div class="waste-icon">
+                            <i class="fas fa-trash-alt"></i>
+                        </div>
+                        <h4>Thông tin rác thải</h4>
+                        <p>Nhập số kg rác thải bạn muốn nộp để nhận điểm</p>
+                    </div>
+                    
+                    <form id="wasteForm" class="waste-form">
+                        <div class="form-group">
+                            <label for="wasteAmount">
+                                <i class="fas fa-weight"></i>
+                                Số kg rác thải
+                            </label>
+                            <div class="input-group">
+                                <input 
+                                    type="number" 
+                                    id="wasteAmount" 
+                                    name="wasteAmount" 
+                                    placeholder="Nhập số kg rác thải..."
+                                    min="0.1"
+                                    max="1000"
+                                    step="0.1"
+                                    required
+                                >
+                                <span class="input-unit">kg</span>
+                            </div>
+                            <small class="input-hint">Tối thiểu 0.1kg, tối đa 1000kg</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="wasteType">
+                                <i class="fas fa-tags"></i>
+                                Loại rác thải
+                            </label>
+                            <select id="wasteType" name="wasteType">
+                                <option value="all">Tất cả loại rác</option>
+                                <option value="pet">Chai nhựa PET</option>
+                                <option value="bag">Túi nilon</option>
+                                <option value="box">Hộp giấy</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="wasteLocation">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Địa điểm nộp rác (tùy chọn)
+                            </label>
+                            <input 
+                                type="text" 
+                                id="wasteLocation" 
+                                name="wasteLocation" 
+                                placeholder="Ví dụ: Trạm thu gom số 1, Quận 1"
+                                maxlength="200"
+                            >
+                        </div>
+
+                        <div class="points-preview" id="pointsPreview">
+                            <div class="points-preview-header">
+                                <i class="fas fa-calculator"></i>
+                                <span>Dự kiến điểm nhận được</span>
+                            </div>
+                            <div class="points-preview-content">
+                                <div class="points-amount" id="previewPoints">0 điểm</div>
+                                <div class="points-breakdown" id="pointsBreakdown">
+                                    <div class="breakdown-item">
+                                        <span>Điểm cơ bản:</span>
+                                        <span id="basePoints">0 điểm</span>
+                                    </div>
+                                    <div class="breakdown-item bonus" id="bonusBreakdown" style="display: none;">
+                                        <span>Điểm thưởng:</span>
+                                        <span id="bonusPoints">+0 điểm</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-cancel" onclick="closeAddWasteModal()">
+                                <i class="fas fa-times"></i>
+                                Hủy
+                            </button>
+                            <button type="submit" class="btn-submit" id="submitWasteBtn">
+                                <i class="fas fa-check"></i>
+                                Xác nhận nộp rác
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Vouchers Modal -->
     <div id="vouchersModal" class="modal">
         <div class="modal-content">
@@ -3845,6 +4141,21 @@
                 if (confirmRedeemBtn) {
                     confirmRedeemBtn.addEventListener('click', () => this.confirmRedeem());
                 }
+
+                // Waste form events
+                const wasteForm = document.getElementById('wasteForm');
+                if (wasteForm) {
+                    wasteForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.submitWaste();
+                    });
+                }
+
+                // Waste amount input for real-time preview
+                const wasteAmountInput = document.getElementById('wasteAmount');
+                if (wasteAmountInput) {
+                    wasteAmountInput.addEventListener('input', () => this.updatePointsPreview());
+                }
             }
 
             async calculatePoints(wasteAmount) {
@@ -3963,37 +4274,15 @@
                     return;
                 }
 
-                const wasteAmount = prompt('Nhập số kg rác thải bạn muốn nộp:');
-                if (wasteAmount && !isNaN(wasteAmount) && parseFloat(wasteAmount) > 0) {
-                    const amount = parseFloat(wasteAmount);
+                // Hiển thị modal thêm rác thải
+                const modal = document.getElementById('addWasteModal');
+                if (modal) {
+                    modal.style.display = 'block';
+                    document.body.style.overflow = 'hidden';
                     
-                    try {
-                        // Hiển thị loading
-                        this.showAlert('Đang xử lý giao dịch...', 'info');
-                        
-                        // Gọi API để đổi rác thành điểm
-                        const result = await window.RecycleHubAPI.exchangeWasteForPoints({
-                            wasteAmount: amount,
-                            location: '',
-                            plasticType: ''
-                        });
-                        
-                        if (result.success) {
-                            // Cập nhật UI với dữ liệu từ server
-                            this.currentPoints = result.data.user.points;
-                            this.totalWaste = result.data.user.stats.totalKg;
-                            
-                            // Lưu vào localStorage để backup
-                            localStorage.setItem('recyclehub_points', this.currentPoints);
-                            localStorage.setItem('recyclehub_waste', this.totalWaste);
-                            
-                            this.showAlert(result.message, 'success');
-                            this.updatePointsDisplay();
-                        }
-                    } catch (error) {
-                        console.error('Error exchanging waste:', error);
-                        this.showAlert(`Lỗi: ${error.message}`, 'error');
-                    }
+                    // Reset form
+                    document.getElementById('wasteForm').reset();
+                    this.updatePointsPreview();
                 }
             }
 
@@ -4001,6 +4290,79 @@
                 this.currentPoints += points;
                 localStorage.setItem('recyclehub_points', this.currentPoints);
                 this.updatePointsDisplay();
+            }
+
+            updatePointsPreview() {
+                const wasteAmount = parseFloat(document.getElementById('wasteAmount').value) || 0;
+                const pointsData = this.calculatePoints(wasteAmount);
+                
+                document.getElementById('previewPoints').textContent = `${pointsData.totalPoints} điểm`;
+                document.getElementById('basePoints').textContent = `${pointsData.basePoints} điểm`;
+                
+                const bonusBreakdown = document.getElementById('bonusBreakdown');
+                if (pointsData.hasBonus) {
+                    bonusBreakdown.style.display = 'flex';
+                    document.getElementById('bonusPoints').textContent = `+${pointsData.bonusPoints} điểm`;
+                } else {
+                    bonusBreakdown.style.display = 'none';
+                }
+            }
+
+            async submitWaste() {
+                const form = document.getElementById('wasteForm');
+                const formData = new FormData(form);
+                const wasteAmount = parseFloat(formData.get('wasteAmount'));
+                const wasteType = formData.get('wasteType');
+                const wasteLocation = formData.get('wasteLocation');
+
+                if (!wasteAmount || wasteAmount <= 0) {
+                    this.showAlert('Vui lòng nhập số kg rác thải hợp lệ!', 'error');
+                    return;
+                }
+
+                try {
+                    // Disable submit button
+                    const submitBtn = document.getElementById('submitWasteBtn');
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+
+                    // Gọi API để đổi rác thành điểm
+                    const result = await window.RecycleHubAPI.exchangeWasteForPoints({
+                        wasteAmount: wasteAmount,
+                        location: wasteLocation || '',
+                        plasticType: wasteType
+                    });
+                    
+                    if (result.success) {
+                        // Cập nhật UI với dữ liệu từ server
+                        this.currentPoints = result.data.user.points;
+                        this.totalWaste = result.data.user.stats.totalKg;
+                        
+                        // Lưu vào localStorage để backup
+                        localStorage.setItem('recyclehub_points', this.currentPoints);
+                        localStorage.setItem('recyclehub_waste', this.totalWaste);
+                        
+                        this.updatePointsDisplay();
+                        this.closeAddWasteModal();
+                        this.showAlert(`Nộp ${wasteAmount}kg rác thành công! Nhận được ${result.data.transaction.pointsEarned} điểm`, 'success');
+                    }
+                } catch (error) {
+                    console.error('Error adding waste:', error);
+                    this.showAlert(`Lỗi: ${error.message}`, 'error');
+                } finally {
+                    // Re-enable submit button
+                    const submitBtn = document.getElementById('submitWasteBtn');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-check"></i> Xác nhận nộp rác';
+                }
+            }
+
+            closeAddWasteModal() {
+                const modal = document.getElementById('addWasteModal');
+                if (modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
             }
 
             async viewTransactionHistory() {
@@ -4589,6 +4951,12 @@
         function closeRedeemModal() {
             if (window.pointsSystem) {
                 window.pointsSystem.closeRedeemModal();
+            }
+        }
+
+        function closeAddWasteModal() {
+            if (window.pointsSystem) {
+                window.pointsSystem.closeAddWasteModal();
             }
         }
 
