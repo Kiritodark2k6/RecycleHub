@@ -1236,6 +1236,19 @@
             margin-top: 2rem;
         }
 
+        /* Vouchers Modal - Larger Size */
+        #vouchersModal .modal-content {
+            width: 95%;
+            max-width: 800px;
+            max-height: 90vh;
+            margin: 2% auto;
+        }
+
+        #vouchersModal .modal-body {
+            max-height: calc(90vh - 120px);
+            overflow-y: auto;
+        }
+
         /* Responsive design for voucher items */
         @media (max-width: 768px) {
             .voucher-item {
@@ -1283,6 +1296,30 @@
             .code-value {
                 font-size: 0.9rem;
                 padding: 0.4rem 0.6rem;
+            }
+        }
+
+        /* Responsive for vouchers modal */
+        @media (max-width: 768px) {
+            #vouchersModal .modal-content {
+                width: 98%;
+                max-width: 600px;
+                margin: 1% auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #vouchersModal .modal-content {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                border-radius: 0;
+                height: 100vh;
+                max-height: 100vh;
+            }
+
+            #vouchersModal .modal-body {
+                max-height: calc(100vh - 80px);
             }
         }
 
