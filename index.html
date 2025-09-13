@@ -867,6 +867,199 @@
             background: var(--white);
         }
 
+        /* Transaction History Modal Styles */
+        .transaction-filters {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .filter-select {
+            padding: 0.8rem 1.2rem;
+            border: 2px solid #e8f0fe;
+            border-radius: 12px;
+            background: #fafbfc;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: var(--transition);
+            min-width: 200px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.1);
+        }
+
+        .transaction-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 2rem;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #f8fffe, #f0f9f4);
+            border-radius: 16px;
+            border: 1px solid #e8f5e8;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .transaction-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 139, 34, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .transaction-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .transaction-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .transaction-icon i {
+            color: var(--white);
+            font-size: 1.2rem;
+        }
+
+        .transaction-details {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transaction-info h4 {
+            margin: 0 0 0.3rem 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .transaction-info p {
+            margin: 0 0 0.3rem 0;
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .transaction-info small {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .transaction-points {
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .transaction-points.positive {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .transaction-points.negative {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading-spinner, .error-message, .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #666;
+        }
+
+        .loading-spinner i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .error-message i {
+            font-size: 2rem;
+            color: #dc3545;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #ccc;
+            margin-bottom: 1rem;
+        }
+
+        .transaction-pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .page-btn {
+            padding: 0.6rem 1rem;
+            border: 2px solid #e8f0fe;
+            background: var(--white);
+            color: var(--primary-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            font-weight: 500;
+            min-width: 40px;
+        }
+
+        .page-btn:hover {
+            border-color: var(--primary-color);
+            background: #f0f9f4;
+            transform: translateY(-1px);
+        }
+
+        .page-btn.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            border-color: var(--primary-color);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .form-group {
             margin-bottom: 1.8rem;
             text-align: left;
@@ -1569,27 +1762,6 @@
             padding: 1rem;
             border-radius: 8px;
             margin-bottom: 1rem;
-        }
-
-        .earnings-result {
-            background: rgba(46, 204, 113, 0.1);
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border: 1px solid rgba(46, 204, 113, 0.3);
-        }
-
-        .earnings-label {
-            display: block;
-            font-size: 0.9rem;
-            color: var(--text-light);
-            margin-bottom: 0.5rem;
-        }
-
-        .earnings-value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--success-color);
         }
 
         .points-value {
@@ -2404,34 +2576,18 @@
                         <div class="calculator-content">
                             <div class="input-group">
                                 <label for="wasteAmount">Số kg rác thải:</label>
-                                <input type="number" id="wasteAmount" min="0.1" step="0.1" placeholder="Nhập số kg" max="1000">
-                            </div>
-                            <div class="input-group">
-                                <label for="plasticType">Loại nhựa:</label>
-                                <select id="plasticType">
-                                    <option value="mixed">Tất cả các loại</option>
-                                    <option value="pet">Chai PET</option>
-                                    <option value="bag">Túi nhựa</option>
-                                    <option value="box">Hộp nhựa</option>
-                                </select>
-                            </div>
+                                <input type="number" id="wasteAmount" min="0" step="0.1" placeholder="Nhập số kg">
+                        </div>
                             <div class="points-result">
                                 <span class="points-label">Điểm nhận được:</span>
                                 <span class="points-value" id="calculatedPoints">0 điểm</span>
-                            </div>
-                            <div class="earnings-result">
-                                <span class="earnings-label">Giá trị tiền mặt:</span>
-                                <span class="earnings-value" id="calculatedEarnings">0 VND</span>
-                            </div>
+                    </div>
                             <div class="bonus-info" id="bonusInfo" style="display: none;">
                                 <i class="fas fa-star"></i>
-                                <span id="bonusMessage">Bạn nhận được điểm bonus vì có từ 10kg trở lên!</span>
-                            </div>
-                            <button class="btn btn-primary" id="submitRecycleBtn" style="margin-top: 1rem; width: 100%;">
-                                <i class="fas fa-recycle"></i> Đăng ký đổi rác
-                            </button>
+                                <span>Bạn nhận được điểm bonus vì có từ 10kg trở lên!</span>
                         </div>
                     </div>
+                        </div>
                 </div>
 
                 <!-- Current Points Display -->
@@ -2840,6 +2996,36 @@
                             Xác nhận đổi
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction History Modal -->
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-history"></i> Lịch sử giao dịch</h3>
+                <span class="close" data-modal="historyModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="transaction-filters">
+                    <select id="transactionTypeFilter" class="filter-select">
+                        <option value="">Tất cả giao dịch</option>
+                        <option value="waste_exchange">Đổi rác thành điểm</option>
+                        <option value="daily_checkin">Điểm danh</option>
+                        <option value="bonus">Điểm thưởng</option>
+                        <option value="redemption">Đổi quà</option>
+                    </select>
+                </div>
+                <div class="transaction-list" id="transactionList">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Đang tải dữ liệu...</p>
+                    </div>
+                </div>
+                <div class="transaction-pagination" id="transactionPagination">
+                    <!-- Pagination buttons will be inserted here -->
                 </div>
             </div>
         </div>
@@ -3275,11 +3461,52 @@
                 this.init();
             }
 
-            init() {
+            async init() {
+                await this.loadUserData();
                 this.updatePointsDisplay();
                 this.bindEvents();
                 this.updateCheckinUI();
                 this.checkDailyCheckIn();
+            }
+
+            async loadUserData() {
+                // Kiểm tra xem user có đăng nhập không
+                if (window.RecycleHubAPI.isLoggedIn()) {
+                    try {
+                        // Load dữ liệu từ API
+                        const result = await window.RecycleHubAPI.getUserPointsStats();
+                        if (result.success) {
+                            const userStats = result.data;
+                            this.currentPoints = userStats.currentPoints;
+                            this.checkinStreak = userStats.checkinStreak;
+                            this.totalWaste = userStats.userStats.totalKg;
+                            
+                            // Cập nhật localStorage
+                            localStorage.setItem('recyclehub_points', this.currentPoints);
+                            localStorage.setItem('recyclehub_waste', this.totalWaste);
+                            
+                            if (userStats.lastCheckin) {
+                                this.lastCheckIn = new Date(userStats.lastCheckin).toDateString();
+                                localStorage.setItem('recyclehub_last_checkin', this.lastCheckIn);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error loading user data:', error);
+                        // Fallback to localStorage data
+                        this.loadFromLocalStorage();
+                    }
+                } else {
+                    // Fallback to localStorage data
+                    this.loadFromLocalStorage();
+                }
+            }
+
+            loadFromLocalStorage() {
+                // Load dữ liệu từ localStorage như trước
+                this.currentPoints = parseInt(localStorage.getItem('recyclehub_points')) || 0;
+                this.totalWaste = parseFloat(localStorage.getItem('recyclehub_waste')) || 0;
+                this.redeemedVouchers = parseInt(localStorage.getItem('recyclehub_vouchers')) || 0;
+                this.lastCheckIn = localStorage.getItem('recyclehub_last_checkin');
             }
 
             bindEvents() {
@@ -3287,21 +3514,6 @@
                 const wasteInput = document.getElementById('wasteAmount');
                 if (wasteInput) {
                     wasteInput.addEventListener('input', (e) => this.calculatePoints(e.target.value));
-                }
-
-                const plasticTypeSelect = document.getElementById('plasticType');
-                if (plasticTypeSelect) {
-                    plasticTypeSelect.addEventListener('change', () => {
-                        const wasteAmount = document.getElementById('wasteAmount')?.value;
-                        if (wasteAmount) {
-                            this.calculatePoints(wasteAmount);
-                        }
-                    });
-                }
-
-                const submitRecycleBtn = document.getElementById('submitRecycleBtn');
-                if (submitRecycleBtn) {
-                    submitRecycleBtn.addEventListener('click', () => this.submitRecycle());
                 }
 
                 // Check-in button (dashboard)
@@ -3322,6 +3534,18 @@
                     addWasteBtn.addEventListener('click', () => this.addWaste());
                 }
 
+                // View history button
+                const viewHistoryBtn = document.getElementById('viewHistoryBtn');
+                if (viewHistoryBtn) {
+                    viewHistoryBtn.addEventListener('click', () => this.viewTransactionHistory());
+                }
+
+                // Transaction type filter
+                const transactionTypeFilter = document.getElementById('transactionTypeFilter');
+                if (transactionTypeFilter) {
+                    transactionTypeFilter.addEventListener('change', (e) => this.filterTransactions(e.target.value));
+                }
+
                 // Confirm redeem button
                 const confirmRedeemBtn = document.getElementById('confirmRedeemBtn');
                 if (confirmRedeemBtn) {
@@ -3332,194 +3556,150 @@
             async calculatePoints(wasteAmount) {
                 const amount = parseFloat(wasteAmount) || 0;
                 
-                if (amount < 0.1) {
-                    this.updatePointsDisplay(0, 0, false, '');
+                if (amount <= 0) {
+                    const pointsElement = document.getElementById('calculatedPoints');
+                    const bonusInfo = document.getElementById('bonusInfo');
+                    
+                    if (pointsElement) {
+                        pointsElement.textContent = '0 điểm';
+                    }
+                    if (bonusInfo) {
+                        bonusInfo.style.display = 'none';
+                    }
                     return;
                 }
 
                 try {
-                    const plasticType = document.getElementById('plasticType')?.value || 'mixed';
-                    const result = await window.RecycleHubAPI.calculatePoints(amount, plasticType);
+                    // Gọi API để tính điểm
+                    const result = await window.RecycleHubAPI.calculatePoints(amount);
                     
                     if (result.success) {
-                        this.updatePointsDisplay(
-                            result.data.totalPoints,
-                            result.data.totalEarnings,
-                            result.data.hasBonus,
-                            result.data.bonusMessage
-                        );
+                        const pointsCalculation = result.data.pointsCalculation;
+                        
+                        const pointsElement = document.getElementById('calculatedPoints');
+                        const bonusInfo = document.getElementById('bonusInfo');
+                        
+                        if (pointsElement) {
+                            pointsElement.textContent = `${pointsCalculation.totalPoints} điểm`;
+                        }
+                        
+                        if (bonusInfo) {
+                            bonusInfo.style.display = pointsCalculation.hasBonus ? 'flex' : 'none';
+                        }
                     }
                 } catch (error) {
                     console.error('Error calculating points:', error);
                     // Fallback to local calculation
-                    this.calculatePointsLocal(amount);
-                }
-            }
+                    let points = 0;
+                    let bonus = false;
 
-            calculatePointsLocal(amount) {
-                let points = 0;
-                let bonus = false;
-
-                if (amount > 0) {
-                    // Base points: 10 points per kg
-                    points = amount * 10;
-                    
-                    // Bonus: +1 point per kg if >= 10kg
-                    if (amount >= 10) {
-                        points += (amount - 10) * 1; // +1 bonus point per kg for 10kg+
-                        bonus = true;
-                    }
-                }
-
-                const earnings = points * 1000; // 1 point = 1000 VND
-                this.updatePointsDisplay(points, earnings, bonus, 'Bạn nhận được điểm bonus vì có từ 10kg trở lên!');
-            }
-
-            updatePointsDisplay(points, earnings, hasBonus, bonusMessage) {
-                const pointsElement = document.getElementById('calculatedPoints');
-                const earningsElement = document.getElementById('calculatedEarnings');
-                const bonusInfo = document.getElementById('bonusInfo');
-                const bonusMessageElement = document.getElementById('bonusMessage');
-                
-                if (pointsElement) {
-                    pointsElement.textContent = `${Math.floor(points)} điểm`;
-                }
-                
-                if (earningsElement) {
-                    earningsElement.textContent = `${Math.floor(earnings).toLocaleString()} VND`;
-                }
-                
-                if (bonusInfo) {
-                    bonusInfo.style.display = hasBonus ? 'flex' : 'none';
-                }
-                
-                if (bonusMessageElement && bonusMessage) {
-                    bonusMessageElement.textContent = bonusMessage;
-                }
-            }
-
-            async updateCurrentPoints() {
-                try {
-                    if (window.RecycleHubAPI.isLoggedIn()) {
-                        const result = await window.RecycleHubAPI.getRecycleStats();
-                        if (result.success) {
-                            const currentPointsElement = document.getElementById('currentPoints');
-                            if (currentPointsElement) {
-                                currentPointsElement.textContent = `${result.data.currentPoints} điểm`;
-                            }
+                    if (amount > 0) {
+                        // Base points: 10 points per kg
+                        points = amount * 10;
+                        
+                        // Bonus: +1 point per kg if >= 10kg
+                        if (amount >= 10) {
+                            points += amount; // +1 bonus point per kg
+                            bonus = true;
                         }
                     }
-                } catch (error) {
-                    console.error('Error updating current points:', error);
+
+                    const pointsElement = document.getElementById('calculatedPoints');
+                    const bonusInfo = document.getElementById('bonusInfo');
+                    
+                    if (pointsElement) {
+                        pointsElement.textContent = `${Math.floor(points)} điểm`;
+                    }
+                    
+                    if (bonusInfo) {
+                        bonusInfo.style.display = bonus ? 'flex' : 'none';
+                    }
                 }
             }
 
-            async submitRecycle() {
-                const wasteAmount = document.getElementById('wasteAmount')?.value;
-                const plasticType = document.getElementById('plasticType')?.value;
-                
-                if (!wasteAmount || parseFloat(wasteAmount) < 0.1) {
-                    this.showAlert('Vui lòng nhập số kg rác thải (tối thiểu 0.1kg)', 'error');
-                    return;
-                }
-
+            async dailyCheckIn() {
+                // Kiểm tra đăng nhập
                 if (!window.RecycleHubAPI.isLoggedIn()) {
-                    this.showAlert('Vui lòng đăng nhập để đăng ký đổi rác', 'error');
-                    // Show login modal
-                    const loginModal = document.getElementById('loginModal');
-                    if (loginModal) {
-                        loginModal.style.display = 'block';
-                    }
+                    this.showAlert('Vui lòng đăng nhập để sử dụng tính năng này!', 'error');
                     return;
                 }
 
                 try {
-                    const location = prompt('Nhập địa chỉ nộp rác:');
-                    if (!location || location.trim().length < 10) {
-                        this.showAlert('Vui lòng nhập địa chỉ chi tiết (ít nhất 10 ký tự)', 'error');
-                        return;
-                    }
-
-                    const notes = prompt('Ghi chú thêm (không bắt buộc):') || '';
-
-                    const recycleData = {
-                        plasticType: plasticType || 'mixed',
-                        weight: parseFloat(wasteAmount),
-                        location: location.trim(),
-                        notes: notes.trim()
-                    };
-
-                    this.showAlert('Đang gửi yêu cầu đổi rác...', 'info');
+                    // Hiển thị loading
+                    this.showAlert('Đang xử lý điểm danh...', 'info');
                     
-                    const result = await window.RecycleHubAPI.submitRecycle(recycleData);
+                    // Add animation to button
+                    const checkinBtn = document.getElementById('dailyCheckinBtn');
+                    if (checkinBtn) {
+                        checkinBtn.classList.add('animating');
+                        setTimeout(() => checkinBtn.classList.remove('animating'), 600);
+                    }
+                    
+                    // Gọi API để điểm danh
+                    const result = await window.RecycleHubAPI.dailyCheckin();
                     
                     if (result.success) {
-                        this.showAlert('Đăng ký đổi rác thành công! Chúng tôi sẽ liên hệ để xác nhận.', 'success');
+                        // Cập nhật UI với dữ liệu từ server
+                        this.currentPoints = result.data.user.points;
+                        this.checkinStreak = result.data.checkinStreak;
                         
-                        // Reset form
-                        document.getElementById('wasteAmount').value = '';
-                        document.getElementById('plasticType').value = 'mixed';
-                        this.updatePointsDisplay(0, 0, false, '');
+                        // Lưu vào localStorage để backup
+                        localStorage.setItem('recyclehub_points', this.currentPoints);
+                        localStorage.setItem('recyclehub_last_checkin', new Date().toDateString());
                         
-                        // Update current points display
-                        this.updateCurrentPoints();
-                    } else {
-                        this.showAlert(result.message || 'Có lỗi xảy ra khi đăng ký đổi rác', 'error');
+                        // Update check-in stats
+                        this.updateCheckinStats();
+                        
+                        // Update UI
+                        this.updateCheckinUI();
+                        
+                        this.showAlert(result.message, 'success');
+                        this.updatePointsDisplay();
                     }
                 } catch (error) {
-                    console.error('Error submitting recycle:', error);
-                    this.showAlert('Có lỗi xảy ra khi đăng ký đổi rác: ' + error.message, 'error');
+                    console.error('Error daily checkin:', error);
+                    this.showAlert(`Lỗi: ${error.message}`, 'error');
                 }
             }
 
-            dailyCheckIn() {
-                const today = new Date().toDateString();
-                
-                if (this.lastCheckIn === today) {
-                    this.showAlert('Bạn đã điểm danh hôm nay rồi!', 'info');
+            async addWaste() {
+                // Kiểm tra đăng nhập
+                if (!window.RecycleHubAPI.isLoggedIn()) {
+                    this.showAlert('Vui lòng đăng nhập để sử dụng tính năng này!', 'error');
                     return;
                 }
 
-                const dayOfWeek = new Date().getDay();
-                const points = (dayOfWeek === 0 || dayOfWeek === 6) ? 5 : 2; // Weekend bonus
-                
-                // Add animation to button
-                const checkinBtn = document.getElementById('dailyCheckinBtn');
-                if (checkinBtn) {
-                    checkinBtn.classList.add('animating');
-                    setTimeout(() => checkinBtn.classList.remove('animating'), 600);
-                }
-                
-                this.addPoints(points);
-                this.lastCheckIn = today;
-                localStorage.setItem('recyclehub_last_checkin', today);
-                
-                // Update check-in stats
-                this.updateCheckinStats();
-                
-                // Update UI
-                this.updateCheckinUI();
-                
-                this.showAlert(`Điểm danh thành công! Nhận được ${points} điểm!`, 'success');
-                this.updatePointsDisplay();
-            }
-
-            addWaste() {
                 const wasteAmount = prompt('Nhập số kg rác thải bạn muốn nộp:');
                 if (wasteAmount && !isNaN(wasteAmount) && parseFloat(wasteAmount) > 0) {
                     const amount = parseFloat(wasteAmount);
-                    this.totalWaste += amount;
-                    localStorage.setItem('recyclehub_waste', this.totalWaste);
                     
-                    // Calculate points
-                    let points = amount * 10;
-                    if (amount >= 10) {
-                        points += amount; // Bonus
+                    try {
+                        // Hiển thị loading
+                        this.showAlert('Đang xử lý giao dịch...', 'info');
+                        
+                        // Gọi API để đổi rác thành điểm
+                        const result = await window.RecycleHubAPI.exchangeWasteForPoints({
+                            wasteAmount: amount,
+                            location: '',
+                            plasticType: ''
+                        });
+                        
+                        if (result.success) {
+                            // Cập nhật UI với dữ liệu từ server
+                            this.currentPoints = result.data.user.points;
+                            this.totalWaste = result.data.user.stats.totalKg;
+                            
+                            // Lưu vào localStorage để backup
+                            localStorage.setItem('recyclehub_points', this.currentPoints);
+                            localStorage.setItem('recyclehub_waste', this.totalWaste);
+                            
+                            this.showAlert(result.message, 'success');
+                            this.updatePointsDisplay();
+                        }
+                    } catch (error) {
+                        console.error('Error exchanging waste:', error);
+                        this.showAlert(`Lỗi: ${error.message}`, 'error');
                     }
-                    
-                    this.addPoints(points);
-                    this.showAlert(`Nộp ${amount}kg rác thành công! Nhận được ${points} điểm!`, 'success');
-                    this.updatePointsDisplay();
                 }
             }
 
@@ -3527,6 +3707,161 @@
                 this.currentPoints += points;
                 localStorage.setItem('recyclehub_points', this.currentPoints);
                 this.updatePointsDisplay();
+            }
+
+            async viewTransactionHistory() {
+                // Kiểm tra đăng nhập
+                if (!window.RecycleHubAPI.isLoggedIn()) {
+                    this.showAlert('Vui lòng đăng nhập để xem lịch sử giao dịch!', 'error');
+                    return;
+                }
+
+                // Hiển thị modal
+                const modal = document.getElementById('historyModal');
+                if (modal) {
+                    modal.style.display = 'block';
+                    await this.loadTransactionHistory();
+                }
+            }
+
+            async loadTransactionHistory(page = 1, type = '') {
+                try {
+                    const transactionList = document.getElementById('transactionList');
+                    if (transactionList) {
+                        transactionList.innerHTML = `
+                            <div class="loading-spinner">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Đang tải dữ liệu...</p>
+                            </div>
+                        `;
+                    }
+
+                    const result = await window.RecycleHubAPI.getUserTransactions({
+                        page: page,
+                        limit: 10,
+                        type: type
+                    });
+
+                    if (result.success) {
+                        this.displayTransactions(result.data.transactions);
+                        this.displayPagination(result.data.pagination);
+                    }
+                } catch (error) {
+                    console.error('Error loading transaction history:', error);
+                    const transactionList = document.getElementById('transactionList');
+                    if (transactionList) {
+                        transactionList.innerHTML = `
+                            <div class="error-message">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p>Lỗi tải dữ liệu: ${error.message}</p>
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+            displayTransactions(transactions) {
+                const transactionList = document.getElementById('transactionList');
+                if (!transactionList) return;
+
+                if (transactions.length === 0) {
+                    transactionList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Chưa có giao dịch nào</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const transactionsHTML = transactions.map(transaction => {
+                    const date = new Date(transaction.createdAt).toLocaleDateString('vi-VN');
+                    const time = new Date(transaction.createdAt).toLocaleTimeString('vi-VN', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
+                    
+                    let icon = 'fas fa-coins';
+                    let typeText = 'Giao dịch';
+                    
+                    switch (transaction.type) {
+                        case 'waste_exchange':
+                            icon = 'fas fa-recycle';
+                            typeText = 'Đổi rác thành điểm';
+                            break;
+                        case 'daily_checkin':
+                            icon = 'fas fa-calendar-check';
+                            typeText = 'Điểm danh';
+                            break;
+                        case 'bonus':
+                            icon = 'fas fa-gift';
+                            typeText = 'Điểm thưởng';
+                            break;
+                        case 'redemption':
+                            icon = 'fas fa-ticket-alt';
+                            typeText = 'Đổi quà';
+                            break;
+                    }
+
+                    return `
+                        <div class="transaction-item">
+                            <div class="transaction-icon">
+                                <i class="${icon}"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-info">
+                                    <h4>${typeText}</h4>
+                                    <p>${transaction.description}</p>
+                                    <small>${date} - ${time}</small>
+                                </div>
+                                <div class="transaction-points ${transaction.pointsEarned > 0 ? 'positive' : 'negative'}">
+                                    ${transaction.pointsEarned > 0 ? '+' : ''}${transaction.pointsEarned} điểm
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                transactionList.innerHTML = transactionsHTML;
+            }
+
+            displayPagination(pagination) {
+                const paginationContainer = document.getElementById('transactionPagination');
+                if (!paginationContainer) return;
+
+                if (pagination.totalPages <= 1) {
+                    paginationContainer.innerHTML = '';
+                    return;
+                }
+
+                let paginationHTML = '<div class="pagination">';
+                
+                // Previous button
+                if (pagination.hasPrev) {
+                    paginationHTML += `<button class="page-btn" onclick="pointsSystem.loadTransactionHistory(${pagination.currentPage - 1})">
+                        <i class="fas fa-chevron-left"></i> Trước
+                    </button>`;
+                }
+
+                // Page numbers
+                for (let i = Math.max(1, pagination.currentPage - 2); i <= Math.min(pagination.totalPages, pagination.currentPage + 2); i++) {
+                    paginationHTML += `<button class="page-btn ${i === pagination.currentPage ? 'active' : ''}" 
+                        onclick="pointsSystem.loadTransactionHistory(${i})">${i}</button>`;
+                }
+
+                // Next button
+                if (pagination.hasNext) {
+                    paginationHTML += `<button class="page-btn" onclick="pointsSystem.loadTransactionHistory(${pagination.currentPage + 1})">
+                        Sau <i class="fas fa-chevron-right"></i>
+                    </button>`;
+                }
+
+                paginationHTML += '</div>';
+                paginationContainer.innerHTML = paginationHTML;
+            }
+
+            async filterTransactions(type) {
+                await this.loadTransactionHistory(1, type);
             }
 
             redeemVoucher(requiredPoints, voucherValue, voucherName, voucherDesc, iconClass) {
