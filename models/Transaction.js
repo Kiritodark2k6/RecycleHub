@@ -69,7 +69,7 @@ const transactionSchema = new mongoose.Schema({
         type: String,
         default: null,
         unique: true,
-        sparse: true // Cho phép null values
+        sparse: true // Cho phép null values và chỉ unique khi không null
     },
     voucherDetails: {
         name: {
