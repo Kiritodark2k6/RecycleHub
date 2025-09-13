@@ -384,6 +384,19 @@ class RecycleHubAPI {
     }
 
 
+    // Fix voucher index
+    async fixVoucherIndex() {
+        try {
+            const response = await fetch('https://recyclehub-production-aba0.up.railway.app/api/points/fix-voucher-index', 
+                this.getFetchOptions('POST', null, false)
+            );
+
+            return await this.handleResponse(response);
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
     // Health check
     async healthCheck() {
         try {
