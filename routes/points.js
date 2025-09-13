@@ -223,12 +223,22 @@ router.get('/calculator', [
 // @access  Private
 router.get('/user-stats', pointsLimiter, authenticateToken, validateUserPermissions, async (req, res) => {
     try {
+        console.log('Getting user stats for user:', req.user._id);
         const user = req.userData; // Đã được validate trong middleware
 
-        // Lấy thống kê từ Transaction model
-        const transactionStats = await Transaction.getUserStats(user._id);
+        console.log('User data:', {
+            userId: user._id,
+            points: user.points,
+            checkinStreak: user.checkinStreak,
+            lastCheckin: user.lastCheckin
+        });
 
-        res.json({
+        // Lấy thống kê từ Transaction model
+        console.log('Fetching transaction stats...');
+        const transactionStats = await Transaction.getUserStats(user._id);
+        console.log('Transaction stats:', transactionStats);
+
+        const responseData = {
             success: true,
             data: {
                 currentPoints: user.points,
@@ -237,13 +247,21 @@ router.get('/user-stats', pointsLimiter, authenticateToken, validateUserPermissi
                 transactionStats: transactionStats,
                 userStats: user.stats
             }
-        });
+        };
+
+        console.log('Sending user stats response:', responseData);
+        res.json(responseData);
 
     } catch (error) {
-        console.error('Get user stats error:', error);
+        console.error('Get user stats error details:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
         res.status(500).json({
             success: false,
-            message: 'Lỗi server khi lấy thống kê điểm'
+            message: 'Lỗi server khi lấy thống kê điểm',
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Có lỗi xảy ra'
         });
     }
 });
